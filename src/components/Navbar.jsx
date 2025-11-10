@@ -7,14 +7,44 @@ import { logout } from '../redux/slices/login';
 const Navbar = ({ onToggleSidebar }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [profileUpdated, setProfileUpdated] = useState(0); // ✅ dependency variable
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loginState = useSelector((state) => state.login);
 
+  // ✅ Load profile from localStorage whenever profileUpdated changes
   useEffect(() => {
-    const savedLogin = localStorage.getItem("user");
-    const parsedUser = savedLogin ? JSON.parse(savedLogin) : null;
-    setUser(parsedUser);
+    const savedProfile = localStorage.getItem('profile');
+    const savedUser = localStorage.getItem('user');
+    const parsedProfile = savedProfile ? JSON.parse(savedProfile) : null;
+    const parsedUser = savedUser ? JSON.parse(savedUser) : null;
+    setUser(parsedProfile || parsedUser);
+  }, [profileUpdated]); // 🔥 reactively reload when profileUpdated changes
+
+  // ✅ Detect and reflect localStorage updates instantly (cross-tab + same-tab)
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === 'profile' || event.key === 'user') {
+        setProfileUpdated((prev) => prev + 1); // trigger reload
+      }
+    };
+
+    // ✅ Listen for browser storage events
+    window.addEventListener('storage', handleStorageChange);
+
+    // ✅ Intercept localStorage.setItem to detect same-tab updates
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function (key, value) {
+      originalSetItem.apply(this, arguments);
+      if (key === 'profile' || key === 'user') {
+        window.dispatchEvent(new StorageEvent('storage', { key })); // trigger handleStorageChange
+      }
+    };
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      localStorage.setItem = originalSetItem; // cleanup
+    };
   }, []);
 
   const handleLogout = () => {
@@ -26,8 +56,10 @@ const Navbar = ({ onToggleSidebar }) => {
     navigate('/change-password');
   };
 
+  const currentUser = user || loginState?.user;
+
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 md:px-5 py-1 flex justify-between items-center">
+    <nav className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex justify-between items-center">
       {/* Left side - Hamburger menu and title */}
       <div className="flex items-center gap-4">
         <button
@@ -37,42 +69,34 @@ const Navbar = ({ onToggleSidebar }) => {
           <Menu size={20} />
         </button>
         <h2 className="text-lg font-semibold text-orange-500">
-          Menon Ticket Management System
+          Menon Ticket System
         </h2>
       </div>
 
-      {/* Right side - Profile Card */}
+      {/* Right side - Profile */}
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          
-
-          {/* Name + Role vertically aligned */}
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-800 leading-tight">
-              {(loginState?.user?.first_name || user?.first_name || '') +
-                ' ' +
-                (loginState?.user?.last_name || user?.last_name || '')}
+          <div className="hidden sm:flex flex-col items-end text-sm leading-tight">
+            <span className="font-medium text-gray-800 capitalize">
+              {`${currentUser?.first_name || ''} ${currentUser?.last_name || ''}`}
             </span>
-            <small className="text-gray-500  text-xs">
-              {user?.role?.role_name ? `${user?.role?.role_name}` : ''}
-            </small>
-            
+            <span className="text-xs text-gray-500">
+              {currentUser?.role?.role_name || 'User'}
+            </span>
           </div>
+
           <img
-            src={loginState?.user?.avatar || user?.avatar || '/default-avatar.png'}
+            src={currentUser?.avatar || '/default-avatar.png'}
             alt="Profile"
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-9 h-9 rounded-full object-cover"
           />
         </button>
 
-
-        {/* Dropdown Menu */}
         {dropdownOpen && (
           <div className="absolute right-0 mt-5 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-
             <Link
               to="/profile"
               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

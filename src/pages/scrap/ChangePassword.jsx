@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { changepassword } from "../http";
+import { changepassword } from "../../http";
 import { toast } from "react-toastify";
 const ChangePassword = ({ onChangePassword }) => {
   const [currentPassword, setCurrentPassword] = useState("");

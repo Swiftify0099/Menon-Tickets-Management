@@ -124,8 +124,7 @@ const Profile = () => {
   if (isError) return <p className="text-red-500">Failed to load profile.</p>;
 
   return (
-  <div className="max-w-2xl ml-8 bg-white shadow-lg p-6 rounded-lg space-y-4">
-
+    <div className="max-w-2xl mx-auto bg-white shadow-lg p-6 rounded-lg space-y-4">
       <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
 
       <h2 className="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>
@@ -161,7 +160,6 @@ const Profile = () => {
         </button>
       </div>
 
-      {/* ✅ Profile Info */}
       <div className="space-y-3 mt-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,314 +1,288 @@
+// src/pages/TicketCreate.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select";
-import { ServiceProvider, services } from "../http";
-import { useDispatch, useSelector } from "react-redux";
-import { addTicket, updateTicket, loadTickets } from "../redux/slices/ticketsSlice";
-import { useQuery } from "@tanstack/react-query"
-import { LuTrash2 } from "react-icons/lu";
+import { Loader2, Upload, X, ArrowLeft, CheckCircle } from "lucide-react";
+import { http, ServiceProvider, services, createTicket } from "../http";
 
-const NewTakits = () => {
-  const [formData, setFormData] = useState({
-    type: "",
-    service: "",
-    status: "Open",
-    details: "",
-    provider: "",
-    documents: [],
-  });
-
-  const [editingId, setEditingId] = useState(null);
-  const [previewImages, setPreviewImages] = useState([]);
+const TicketCreate = () => {
   const navigate = useNavigate();
 
-  const dispatch = useDispatch();
-  const tickets = useSelector((state) => state.tickets.tickets);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [ticketNumber, setTicketNumber] = useState("");
 
-  // ✅ Fetch providers list
-  const { data: providerOptions = [], isLoading: loadingProviders } = useQuery({
-    queryKey: ["providers"],
-    queryFn: async () => {
-      const res = await ServiceProvider();
-      const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
-      console.log("Providers data:", data); // Debugging
-      return data.map((p) => ({
-        value: p.id,
-        label: p.provider_name,
-      }));
-    },
+  const [providers, setProviders] = useState([]);
+  const [servicesList, setServicesList] = useState([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
+
+  const [form, setForm] = useState({
+    provider_id: "",
+    service_id: "",
+    ticket_details: "",
   });
 
-  // ✅ Fetch services dynamically by providerId
- const { data: dynamicServices = [], isLoading: loadingServices } = useQuery({
-  queryKey: ["services", formData.provider],
-  queryFn: async () => {
-    if (!formData.provider) return [];
-    console.log("Fetching services for provider:", formData.provider);
-    const res = await services(Number(formData.provider));
-    console.log("Services API response:", res);
-    const data = Array.isArray(res) ? res : res.data || [];
-    return data.map((s) => ({ value: s.id, label: s.service_name }));
-  },
-  enabled: !!formData.provider,
-});
+  const [documents, setDocuments] = useState([]);
+  const [previewFiles, setPreviewFiles] = useState([]);
 
-
-  // ✅ Load tickets from localStorage if empty
+  // Load Providers
   useEffect(() => {
-    if (tickets.length === 0) {
-      const stored = localStorage.getItem("dashboard-tickets");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) dispatch(loadTickets(parsed));
-        } catch (error) {
-          console.error("Error parsing stored tickets:", error);
+    const fetchProviders = async () => {
+      try {
+        setLoadingProviders(true);
+        const res = await ServiceProvider();
+        if (res.status === 200) {
+          setProviders(res.data || []);
         }
+      } catch (err) {
+        alert("Failed to load service providers");
+      } finally {
+        setLoadingProviders(false);
       }
-    }
-  }, [tickets.length, dispatch]);
+    };
+    fetchProviders();
+  }, []);
 
+  // Load Services when provider changes
   useEffect(() => {
-    if (tickets.length > 0) {
-      localStorage.setItem("dashboard-tickets", JSON.stringify(tickets));
+    if (!form.provider_id) {
+      setServicesList([]);
+      return;
     }
-  }, [tickets]);
 
-  // ✅ Handle file upload
+    const fetchServices = async () => {
+      try {
+        setLoadingServices(true);
+        const res = await services(form.provider_id);
+        if (res.status === 200) {
+          setServicesList(res.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+    fetchServices();
+  }, [form.provider_id]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 5) return alert("You can only upload up to 5 files.");
-
-    const readers = files.map(
-      (file) =>
-        new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () =>
-            resolve({ 
-              name: file.name, 
-              size: file.size, 
-              type: file.type, 
-              url: reader.result 
-            });
-          reader.readAsDataURL(file);
-        })
-    );
-
-    Promise.all(readers).then((fileData) => {
-      setFormData({ ...formData, documents: fileData });
-      setPreviewImages(fileData.map((f) => f.url));
-    });
+    setDocuments((prev) => [...prev, ...files]);
+    setPreviewFiles((prev) => [
+      ...prev,
+      ...files.map((f) => ({
+        name: f.name,
+        size: (f.size / 1024).toFixed(1) + " KB",
+      })),
+    ]);
   };
 
-  const removeImage = (index) => {
-    setFormData({ 
-      ...formData, 
-      documents: formData.documents.filter((_, i) => i !== index) 
-    });
-    setPreviewImages(previewImages.filter((_, i) => i !== index));
+  const removeFile = (i) => {
+    setDocuments((prev) => prev.filter((_, idx) => idx !== i));
+    setPreviewFiles((prev) => prev.filter((_, idx) => idx !== i));
   };
 
-  // ✅ Provider change handler
-  const handleProviderChange = (selected) => {
-    const providerId = selected?.value || "";
-    console.log("Provider changed to:", providerId);
-    setFormData({ 
-      ...formData, 
-      provider: providerId, 
-      service: "" // Reset service when provider changes
-    });
-  };
-
-  // ✅ Submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.service || !formData.provider) {
-      return alert("Please fill all required fields.");
+
+    if (!form.provider_id || !form.service_id) {
+      alert("Please select Provider and Service");
+      return;
     }
 
-    if (editingId) {
-      dispatch(updateTicket({ id: editingId, ...formData }));
-      alert("Ticket updated successfully!");
-    } else {
-      let maxTicketNum = 0;
-      tickets.forEach((t) => {
-        const num = parseInt(t.ticketNo?.replace("TKT-", ""), 10);
-        if (!isNaN(num) && num > maxTicketNum) maxTicketNum = num;
-      });
+    setLoading(true);
+    setSuccess(false);
 
-      const newTicket = {
-        id: Date.now().toString(),
-        ticketNo: `TKT-${maxTicketNum + 1}`,
-        createdAt: new Date().toLocaleDateString(),
-        ...formData,
-      };
-      dispatch(addTicket(newTicket));
-      alert("Ticket created successfully!");
+    const formData = new FormData();
+    formData.append("provider_id", form.provider_id);        // CORRECT
+    formData.append("service_id", form.service_id);          // CORRECT
+    formData.append("ticket_details", form.ticket_details);
+
+    documents.forEach((file) => formData.append("documents[]", file));
+
+    try {
+      const res = await createTicket(formData);
+
+      if (res.status === 200) {
+        const { ticket_id, ticket_number } = res.data;
+
+        const newTicket = {
+          id: ticket_id,
+          ticketNo: ticket_number,
+          type: "Support",
+          createdAt: new Date().toLocaleDateString("en-GB"),
+          service: servicesList.find((s) => s.id == form.service_id)?.service_name || form.service_id,
+          provider: providers.find((p) => p.id == form.provider_id)?.provider_name || form.provider_id,
+          status: "In-Progress",
+        };
+
+        const stored = JSON.parse(localStorage.getItem("dashboard-tickets") || "[]");
+        stored.unshift(newTicket);
+        localStorage.setItem("dashboard-tickets", JSON.stringify(stored));
+
+        setTicketNumber(ticket_number);
+        setSuccess(true);
+
+        setTimeout(() => navigate("/tickets"), 2000);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to create ticket");
+    } finally {
+      setLoading(false);
     }
-
-    setFormData({ 
-      type: "", 
-      service: "", 
-      status: "Open", 
-      details: "", 
-      provider: "", 
-      documents: [] 
-    });
-    setPreviewImages([]);
-    setEditingId(null);
-    navigate("/");
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">
-        {editingId ? "Edit Ticket" : "Create New Ticket"}
-      </h2>
-
-      <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6 md:p-8">
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-5">
-              {/* Provider */}
-              <label className="block">
-                <span className="font-medium text-gray-700 mb-1.5 block">
-                  Service Provider *
-                </span>
-                <Select
-                  options={providerOptions}
-                  isLoading={loadingProviders}
-                  value={providerOptions.find((opt) => opt.value === formData.provider) || null}
-                  onChange={handleProviderChange}
-                  placeholder="Search or Select Provider"
-                  isSearchable
-                  required
-                />
-              </label>
-
-              {/* Services */}
-              <label className="block">
-                <span className="font-medium text-gray-700 mb-1.5 block">
-                  Service *
-                </span>
-                <Select
-                  options={dynamicServices}
-                  isLoading={loadingServices}
-                  isDisabled={!formData.provider || loadingServices}
-                  value={dynamicServices.find((opt) => opt.value === formData.service) || null}
-                  onChange={(selected) => 
-                    setFormData({ ...formData, service: selected?.value || "" })
-                  }
-                  placeholder={
-                    loadingServices ? "Loading services..." :
-                    !formData.provider ? "Select Provider First" :
-                    "Select Service"
-                  }
-                  isSearchable
-                  required
-                />
-                {formData.provider && dynamicServices.length === 0 && !loadingServices && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    No services available for this provider
-                  </p>
-                )}
-              </label>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-5">
-              {/* Details */}
-              <label className="block">
-                <span className="font-medium text-gray-700 mb-1.5 block">
-                  Details
-                </span>
-                <textarea
-                  rows="4"
-                  value={formData.details}
-                  onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                  placeholder="Enter details about the ticket..."
-                />
-              </label>
-
-              {/* Upload */}
-              <label className="block">
-                <span className="font-medium text-gray-700 mb-1.5 block">
-                  Upload Documents (max 5)
-                </span>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-                  accept="image/*,.pdf,.doc,.docx"
-                />
-                {formData.documents?.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {formData.documents.map((file, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          {file.type.startsWith('image/') && previewImages[i] && (
-                            <img
-                              src={previewImages[i]}
-                              alt="preview"
-                              className="w-10 h-10 object-cover rounded-md border border-gray-200"
-                            />
-                          )}
-                          <div>
-                            <span className="text-sm text-gray-700 block">{file.name}</span>
-                            <span className="text-xs text-gray-500">
-                              {(file.size / 1024).toFixed(2)} KB
-                            </span>
-                          </div>
-                        </div>
-                        <button 
-                          type="button"
-                          onClick={() => removeImage(i)} 
-                          className="text-red-500 hover:text-red-700 font-semibold text-sm px-2 py-1 rounded"
-                        >
-                        <LuTrash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </label>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-4 mt-8 pt-4 border-t border-gray-100">
-              <button
-              type="button"
-              onClick={() => {
-                setFormData({ 
-                  type: "", 
-                  service: "", 
-                  status: "Open", 
-                  details: "", 
-                  provider: "", 
-                  documents: [] 
-                });
-                setPreviewImages([]);
-                setEditingId(null);
-              }}
-              className="border border-gray-300 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-200"
-            >
-              Reset
-            </button>
-            <button 
-              type="submit" 
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200"
-            >
-              {editingId ? "Update Ticket" : "Create Ticket"}
-            </button>
-          
-          </div>
-        </form>
+    <div className="max-w-5xl mx-auto p-6">
+      <div className="flex items-center gap-4 mb-8">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg">
+          <ArrowLeft size={24} />
+        </button>
+        <h1 className="text-3xl font-bold text-gray-800">Create New Ticket</h1>
       </div>
+
+      {success && (
+        <div className="mb-8 p-6 bg-green-50 border border-green-300 rounded-xl flex items-center gap-4">
+          <CheckCircle className="text-green-600" size={32} />
+          <div>
+            <p className="text-green-800 font-bold text-lg">Ticket Created Successfully!</p>
+            <p className="text-green-700">
+              Ticket Number: <span className="font-mono text-xl">{ticketNumber}</span>
+            </p>
+            <p className="text-sm text-green-600">Redirecting to tickets...</p>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="bg-white shadow-2xl rounded-2xl p-8 space-y-8">
+        {/* Provider */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Service Provider <span className="text-red-500">*</span>
+          </label>
+          {loadingProviders ? (
+            <div className="px-4 py-3 bg-gray-100 rounded-lg">Loading...</div>
+          ) : (
+            <select
+              name="provider_id"
+              value={form.provider_id}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">-- Select Provider --</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.provider_name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {/* Service */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Service <span className="text-red-500">*</span>
+          </label>
+          {loadingServices ? (
+            <div className="px-4 py-3 bg-gray-100 rounded-lg">Loading services...</div>
+          ) : servicesList.length === 0 ? (
+            <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-500">
+              {form.provider_id ? "No services available" : "Select provider first"}
+            </div>
+          ) : (
+            <select
+              name="service_id"
+              value={form.service_id}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">-- Select Service --</option>
+              {servicesList.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.service_name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {/* Details */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Ticket Details
+          </label>
+          <textarea
+            name="ticket_details"
+            rows="6"
+            value={form.ticket_details}
+            onChange={handleChange}
+            placeholder="Describe your issue..."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+          />
+        </div>
+
+        {/* Files */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Attach Documents
+          </label>
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center hover:border-orange-400">
+            <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <label className="cursor-pointer">
+              <span className="text-sm font-semibold text-orange-600">Click to upload</span>
+              <input type="file" multiple onChange={handleFileChange} className="hidden" />
+            </label>
+          </div>
+
+          {previewFiles.length > 0 && (
+            <div className="mt-6 space-y-3">
+              {previewFiles.map((file, i) => (
+                <div key={i} className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gray-200 border-2 border-dashed rounded w-10 h-10" />
+                    <div>
+                      <p className="text-sm font-medium">{file.name}</p>
+                      <p className="text-xs text-gray-500">{file.size}</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => removeFile(i)} className="text-red-600">
+                    <X size={20} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 pt-6 border-t">
+          <button
+            type="button"
+            onClick={() => navigate("/tickets")}
+            className="px-8 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-8 py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 disabled:opacity-50 flex items-center gap-3"
+          >
+            {loading && <Loader2 className="animate-spin" size={20} />}
+            {loading ? "Creating..." : "Create Ticket"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default NewTakits;
+export default TicketCreate;
