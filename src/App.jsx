@@ -16,11 +16,14 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/Navbar";
+import ChangePassword from "./pages/ChangePassword";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ResetPassword from "./pages/ResetPassword";
 
 const Outlate = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 const token = localStorage.getItem("token");
-if(!token){
+if(!token ){
   return <Login />
 } 
   return (
@@ -50,11 +53,13 @@ const router = createBrowserRouter([
       { path: "takits-details/:id", element: <TakitsDetails /> },
       { path: "tickets", element: <Tickets /> },
       { path: "settings", element: <Settings /> },
-      { path: "profile", element: <Profile /> },
+      { path: "profile", element: <ErrorBoundary><Profile /></ErrorBoundary> },
     ],
   },
   { path: "/login", element: <Login /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
+  {path:"change-password",element:<ChangePassword/>},
+  {path:"/reset-password" ,element:<ResetPassword />}
 ]);
 
 function App() {

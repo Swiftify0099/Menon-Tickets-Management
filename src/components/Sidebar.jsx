@@ -17,7 +17,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         />
       )}
 
-      <aside className={`fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white shadow-lg flex flex-col justify-between border-r border-gray-200 z-50 transform transition-transform duration-300 ${
+      <aside className={`fixed md:relative  top-0 left-0 h-full md:h-auto md:w-44 w-54  bg-gray-100 shadow-lg flex flex-col justify-between border-r border-gray-200 z-50 transform transition-transform duration-300 ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}>
         {/* Close button for mobile */}
@@ -29,8 +29,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         </button>
 
         <div>
-          <nav className="mt-6 px-4">
-            <ul className="space-y-2">
+          <nav className="mt-10 md:mt-4 px-4">
+            <ul className="space-y-1">
               {[
                 { to: "/", icon: Home, label: "Dashbord" },
 
@@ -46,10 +46,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                   <Link
                     to={to}
                     onClick={onClose}
-                    className="flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition"
+                    className="flex items-center gap-3 px-4  py-2 text-xs-1 rounded-xl hover:bg-orange-100 hover:text-orange-600 transition"
                   >
                     <Icon size={20} />
-                    <span>{label}</span>
+                    <h1>{label}</h1>
                   </Link>
                 </li>
               ))}

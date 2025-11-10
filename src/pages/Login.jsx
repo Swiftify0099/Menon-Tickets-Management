@@ -1,90 +1,80 @@
-import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/slices/login";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { loginUser } from "../http";
+import { login, RemberMe } from "../redux/slices/login";
 
 const Login = () => {
-  const navgeate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loding, setLoding] = useState(false);
-  const [formData, setFormData] = useState({
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // ✅ Prefill if RememberMe active
+  const [initialValues, setInitialValues] = useState({
     email: "",
     password: "",
   });
-  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedEmail = localStorage.getItem("login");
     const savedPassword = localStorage.getItem("rememberedPassword");
     const savedRememberMe = localStorage.getItem("rememberMe") === "true";
 
     if (savedRememberMe && savedEmail) {
-      setFormData({ email: savedEmail, password: savedPassword || "" });
+      setInitialValues({
+        email: savedEmail,
+        password: savedPassword || "",
+      });
       setRememberMe(true);
     }
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // ✅ Validation Schema
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    password: Yup.string().required("Password is required"),
+  });
 
-  const handleRememberMeChange = (e) => {
-    setRememberMe(e.target.checked);
-  };
-const { mutate } = useMutation({
+  // ✅ React Query Login Mutation
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (response, variables) => {
+      const { token, user } = response?.data || {};
 
-   mutationFn: loginUser ,
-    onSuccess: (data) => {
-      console.log("Login successful:", data);
-        dispatch(
-  login({
-    token: data.access_token,
-    user: data.user,
-  })
-);
-      if (rememberMe) {
-        localStorage.setItem("rememberedEmail", formData.email);
-        localStorage.setItem("rememberedPassword", formData.password);
-        localStorage.setItem("rememberMe", "true");
-      } else {
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
-        localStorage.removeItem("rememberMe");
+      if (!token) {
+        toast.error("Invalid login response");
+        return;
       }
 
-      navgeate("/");
-    
+      dispatch(login({ token, user }));
+      dispatch(
+        RemberMe({
+          ReEmail: variables.email,
+          RePassword: variables.password,
+          Remember: rememberMe,
+        })
+      );
+
+      toast.success("Login successful!");
+      setTimeout(() => navigate("/"), 1500);
     },
     onError: (error) => {
-      console.error("Login failed:", error);
-      return;
-    }
-
-});
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-       if (loding) return;
-    setLoding(true);
-     
- mutate({
-      email: formData.email,
-      password: formData.password,
- });
-     
-     
-    } catch (err) {
-      console.error("Error during login:", err);
-    }
-  };
+      toast.error(error?.response?.data?.message || "Login failed");
+    },
+  });
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <ToastContainer position="top-right" autoClose={2000} />
+
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md border border-gray-200">
-        {/* Title */}
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
           Welcome Back 👋
         </h2>
@@ -92,78 +82,99 @@ const { mutate } = useMutation({
           Please log in to your account
         </p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label className="block font-medium text-gray-700 text-sm mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-300
-                         focus:ring-2 focus:ring-orange-500 focus:outline-none
-                         text-sm sm:text-base"
-            />
-          </div>
+        {/* ✅ Formik Form */}
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
+            mutate(values);
+          }}
+        >
+          <Form className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="block font-medium text-gray-700 text-sm mb-1">
+                Email
+              </label>
+              <Field
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300
+                           focus:ring-2 focus:ring-orange-500 focus:outline-none
+                           text-sm sm:text-base"
+              />
+              <ErrorMessage
+                name="email"
+                component="div"
+                className="text-red-500 text-xs mt-1"
+              />
+            </div>
 
-          {/* Password */}
-          <div>
-            <label className="block font-medium text-gray-700 text-sm mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-gray-300
-                         focus:ring-2 focus:ring-orange-500 focus:outline-none
-                         text-sm sm:text-base"
-            />
-          </div>
+            {/* Password */}
+            <div>
+              <label className="block font-medium text-gray-700 text-sm mb-1">
+                Password
+              </label>
+              <Field
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300
+                           focus:ring-2 focus:ring-orange-500 focus:outline-none
+                           text-sm sm:text-base"
+              />
+              <ErrorMessage
+                name="password"
+                component="div"
+                className="text-red-500 text-xs mt-1"
+              />
+            </div>
 
-          {/* Remember + Forgot */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm mt-2">
-            <label className="flex items-center gap-2 text-gray-700">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={handleRememberMeChange}
-                className="rounded accent-orange-500"
-              />{" "}
-              Remember me
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-orange-500 hover:text-orange-600 transition-colors"
+            {/* Remember Me + Forgot Password */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm mt-2">
+              <label className="flex items-center gap-2 text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="rounded accent-orange-500"
+                />
+                Remember me
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-orange-500 hover:text-orange-600 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className={`w-full text-white py-2 rounded-lg mt-4 font-semibold text-sm sm:text-base transition duration-200 ${
+                isPending
+                  ? "bg-orange-400 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600"
+              }`}
             >
-              Forgot Password?
-            </Link>
-          </div>
-
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-orange-500 text-white py-2 rounded-lg mt-4
-                       hover:bg-orange-600 transition duration-200 font-semibold text-sm sm:text-base"
-          >
-           {loding ? "Logging in..." : "Login"}
-          </button>
-        </form>
+              {isPending ? "Logging in..." : "Login"}
+            </button>
+          </Form>
+        </Formik>
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?{" "}
-          <a
-            href="#"
+          <Link
+            to="/signup"
             className="text-orange-500 hover:text-orange-600 transition-colors"
           >
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

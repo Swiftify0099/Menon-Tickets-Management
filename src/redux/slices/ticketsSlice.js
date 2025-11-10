@@ -35,8 +35,12 @@ const ticketsSlice = createSlice({
       localStorage.setItem("dashboard-tickets", JSON.stringify(state.tickets));
     },
     reopenTicket: (state, action) => {
-      const ticket = state.tickets.find(t => t.id.toString() === action.payload.toString());
-      if (ticket) ticket.status = "In-Progress";
+      const { id, reason } = action.payload;
+      const ticket = state.tickets.find(t => t.id.toString() === id.toString());
+      if (ticket) {
+        ticket.status = "In-Progress";
+        ticket.reopenReason = reason;
+      }
       localStorage.setItem("dashboard-tickets", JSON.stringify(state.tickets));
     },
     updateRemarks: (state, action) => {
