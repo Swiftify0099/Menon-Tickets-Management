@@ -1,76 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { Loader2, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ticketlist } from "../http";
 
 const Tickets = () => {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const navigate = useNavigate();
 
-  // Load tickets from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("dashboard-tickets");
-    if (stored) setTickets(JSON.parse(stored));
-    setLoading(false);
-  }, []);
+  // ✅ Fetch tickets using TanStack Query
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: async () => {
+      const res = await ticketlist();
+      return res?.data || []; // extract array from response
+    },
+  });
 
-  const saveTickets = (updated) => {
-    setTickets(updated);
-    localStorage.setItem("dashboard-tickets", JSON.stringify(updated));
-  };
+  const tickets = data || [];
 
-  const handleDelete = (id) => {
-    if (window.confirm("Delete this ticket?")) {
-      const updated = tickets.filter((t) => t.id !== id);
-      saveTickets(updated);
-    }
-  };
-
-  const handleOpen = (id) => {
-    navigate(`/takits-details/${id}`);
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/new-takits?edit=${id}`);
-  };
-
-  const handleReopenAsNew = (id) => {
-    const ticket = tickets.find((t) => t.id === id);
-    localStorage.setItem("reopen-ticket", JSON.stringify(ticket));
-    navigate("/new-takits");
-  };
-
+  // Filter by tab
   const filteredTickets =
     activeTab === "All"
       ? tickets
-      : tickets.filter((t) => t.status === activeTab);
+      : tickets.filter((t) => t.status?.toLowerCase() === activeTab.toLowerCase());
 
-  const stats = {
-    total: tickets.length,
-    completed: tickets.filter((t) => t.status === "Completed").length,
-    inProgress: tickets.filter((t) => t.status === "In-Progress").length,
+  const handleOpen = (id) => navigate(`/takits-details/${id}`);
+  const handleEdit = (id) => navigate(`/new-takits?edit=${id}`);
+  const handleDelete = (id) => {
+    if (window.confirm("Delete this ticket?")) {
+      alert(`Ticket ${id} deleted`);
+    }
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          All Tickets
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-800">All Tickets</h2>
+        <button
+          onClick={() => refetch()}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+        >
+          Refresh
+        </button>
       </div>
-
-     
-
-     
 
       {/* Tickets Table */}
       <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-md">
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="animate-spin text-orange-500" size={28} />
           </div>
+        ) : isError ? (
+          <p className="text-center py-6 text-red-500">
+            Failed to load tickets. Please try again.
+          </p>
         ) : filteredTickets.length === 0 ? (
           <p className="text-center py-6 text-gray-500">
             No tickets found for this category.
@@ -81,11 +66,12 @@ const Tickets = () => {
               <tr className="bg-orange-50 text-left border-b border-gray-200">
                 {[
                   "Ticket No",
-                  "Type",
-                  "Created At",
                   "Service",
                   "Provider",
+                  "Assign To",
+                  "Assign Date",
                   "Status",
+                  "Created At",
                   "Action",
                 ].map((h) => (
                   <th key={h} className="p-4 font-semibold text-gray-700">
@@ -100,24 +86,25 @@ const Tickets = () => {
                   key={t.id}
                   className="border-b border-gray-200 hover:bg-gray-50 transition text-gray-700"
                 >
-                  <td className="p-4">{t.ticketNo}</td>
-                  <td className="p-4">{t.type}</td>
-                  <td className="p-4">{t.createdAt}</td>
-                  <td className="p-4">{t.service}</td>
-                  <td className="p-4">{t.provider}</td>
+                  <td className="p-4">{t.ticket_number}</td>
+                  <td className="p-4">{t.service_name}</td>
+                  <td className="p-4">{t.provider_name}</td>
+                  <td className="p-4">{t.assign_user_name || "—"}</td>
+                  <td className="p-4">{t.assign_date || "—"}</td>
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        t.status === "Completed"
+                        t.status === "completed"
                           ? "bg-green-100 text-green-700"
-                          : t.status === "In-Progress"
-                          ? "bg-blue-100 text-blue-700"
+                          : t.status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
                           : "bg-gray-100 text-gray-700"
                       }`}
                     >
-                      {t.status}
+                      {t.status || "N/A"}
                     </span>
                   </td>
+                  <td className="p-4">{t.created_at}</td>
                   <td className="p-4">
                     <div className="flex gap-2">
                       <button
@@ -131,12 +118,6 @@ const Tickets = () => {
                         className="text-green-600 hover:underline text-xs"
                       >
                         Edit
-                      </button>
-                      <button
-                        onClick={() => handleReopenAsNew(t.id)}
-                        className="text-purple-600 hover:underline text-xs"
-                      >
-                        Reopen as New
                       </button>
                       <button
                         onClick={() => handleDelete(t.id)}

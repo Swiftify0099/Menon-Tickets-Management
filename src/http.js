@@ -82,4 +82,7 @@ export const changePassword = async (passwordData) => {
   const resp = await http.post("reset-password", passwordData);
   return resp.data;
 };  
-
+export const ticketlist = async () => {
+  const resp = await http.post("ticket/list", );
+  return resp.data;
+}

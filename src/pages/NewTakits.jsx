@@ -4,7 +4,7 @@ import Select from "react-select";
 import { ServiceProvider, services } from "../http";
 import { useDispatch, useSelector } from "react-redux";
 import { addTicket, updateTicket, loadTickets } from "../redux/slices/ticketsSlice";
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query";
 import { LuTrash2 } from "react-icons/lu";
 
 const NewTakits = () => {
@@ -20,7 +20,6 @@ const NewTakits = () => {
   const [editingId, setEditingId] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
   const tickets = useSelector((state) => state.tickets.tickets);
 
@@ -30,7 +29,6 @@ const NewTakits = () => {
     queryFn: async () => {
       const res = await ServiceProvider();
       const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
-      console.log("Providers data:", data); // Debugging
       return data.map((p) => ({
         value: p.id,
         label: p.provider_name,
@@ -39,19 +37,16 @@ const NewTakits = () => {
   });
 
   // ✅ Fetch services dynamically by providerId
- const { data: dynamicServices = [], isLoading: loadingServices } = useQuery({
-  queryKey: ["services", formData.provider],
-  queryFn: async () => {
-    if (!formData.provider) return [];
-    console.log("Fetching services for provider:", formData.provider);
-    const res = await services(Number(formData.provider));
-    console.log("Services API response:", res);
-    const data = Array.isArray(res) ? res : res.data || [];
-    return data.map((s) => ({ value: s.id, label: s.service_name }));
-  },
-  enabled: !!formData.provider,
-});
-
+  const { data: dynamicServices = [], isLoading: loadingServices } = useQuery({
+    queryKey: ["services", formData.provider],
+    queryFn: async () => {
+      if (!formData.provider) return [];
+      const res = await services(Number(formData.provider));
+      const data = Array.isArray(res) ? res : res.data || [];
+      return data.map((s) => ({ value: s.id, label: s.service_name }));
+    },
+    enabled: !!formData.provider,
+  });
 
   // ✅ Load tickets from localStorage if empty
   useEffect(() => {
@@ -84,11 +79,11 @@ const NewTakits = () => {
         new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () =>
-            resolve({ 
-              name: file.name, 
-              size: file.size, 
-              type: file.type, 
-              url: reader.result 
+            resolve({
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              url: reader.result,
             });
           reader.readAsDataURL(file);
         })
@@ -101,9 +96,9 @@ const NewTakits = () => {
   };
 
   const removeImage = (index) => {
-    setFormData({ 
-      ...formData, 
-      documents: formData.documents.filter((_, i) => i !== index) 
+    setFormData({
+      ...formData,
+      documents: formData.documents.filter((_, i) => i !== index),
     });
     setPreviewImages(previewImages.filter((_, i) => i !== index));
   };
@@ -111,20 +106,19 @@ const NewTakits = () => {
   // ✅ Provider change handler
   const handleProviderChange = (selected) => {
     const providerId = selected?.value || "";
-    console.log("Provider changed to:", providerId);
-    setFormData({ 
-      ...formData, 
-      provider: providerId, 
-      service: "" // Reset service when provider changes
+    setFormData({
+      ...formData,
+      provider: providerId,
+      service: "", // Reset service when provider changes
     });
   };
 
   // ✅ Submit form
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.service || !formData.provider) {
-      return alert("Please fill all required fields.");
-    }
+    // if (!formData.service || !formData.provider) {
+    //   return alert("Please fill all required fields.");
+    // }
 
     if (editingId) {
       dispatch(updateTicket({ id: editingId, ...formData }));
@@ -146,13 +140,13 @@ const NewTakits = () => {
       alert("Ticket created successfully!");
     }
 
-    setFormData({ 
-      type: "", 
-      service: "", 
-      status: "Open", 
-      details: "", 
-      provider: "", 
-      documents: [] 
+    setFormData({
+      type: "",
+      service: "",
+      status: "Open",
+      details: "",
+      provider: "",
+      documents: [],
     });
     setPreviewImages([]);
     setEditingId(null);
@@ -178,7 +172,11 @@ const NewTakits = () => {
                 <Select
                   options={providerOptions}
                   isLoading={loadingProviders}
-                  value={providerOptions.find((opt) => opt.value === formData.provider) || null}
+                  value={
+                    providerOptions.find(
+                      (opt) => opt.value === formData.provider
+                    ) || null
+                  }
                   onChange={handleProviderChange}
                   placeholder="Search or Select Provider"
                   isSearchable
@@ -187,7 +185,7 @@ const NewTakits = () => {
               </label>
 
               {/* Services */}
-              <label className="block">
+              {/* <label className="block">
                 <span className="font-medium text-gray-700 mb-1.5 block">
                   Service *
                 </span>
@@ -195,24 +193,32 @@ const NewTakits = () => {
                   options={dynamicServices}
                   isLoading={loadingServices}
                   isDisabled={!formData.provider || loadingServices}
-                  value={dynamicServices.find((opt) => opt.value === formData.service) || null}
-                  onChange={(selected) => 
+                  value={
+                    dynamicServices.find(
+                      (opt) => opt.value === formData.service
+                    ) || null
+                  }
+                  onChange={(selected) =>
                     setFormData({ ...formData, service: selected?.value || "" })
                   }
                   placeholder={
-                    loadingServices ? "Loading services..." :
-                    !formData.provider ? "Select Provider First" :
-                    "Select Service"
+                    loadingServices
+                      ? "Loading services..."
+                      : !formData.provider
+                      ? "Select Provider First"
+                      : "Select Service"
                   }
                   isSearchable
                   required
                 />
-                {formData.provider && dynamicServices.length === 0 && !loadingServices && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    No services available for this provider
-                  </p>
-                )}
-              </label>
+                {formData.provider &&
+                  dynamicServices.length === 0 &&
+                  !loadingServices && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      No services available for this provider
+                    </p>
+                  )}
+              </label> */}
             </div>
 
             {/* Right Column */}
@@ -225,7 +231,9 @@ const NewTakits = () => {
                 <textarea
                   rows="4"
                   value={formData.details}
-                  onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, details: e.target.value })
+                  }
                   className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   placeholder="Enter details about the ticket..."
                 />
@@ -246,28 +254,34 @@ const NewTakits = () => {
                 {formData.documents?.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {formData.documents.map((file, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center space-x-3">
-                          {file.type.startsWith('image/') && previewImages[i] && (
-                            <img
-                              src={previewImages[i]}
-                              alt="preview"
-                              className="w-10 h-10 object-cover rounded-md border border-gray-200"
-                            />
-                          )}
+                          {file.type.startsWith("image/") &&
+                            previewImages[i] && (
+                              <img
+                                src={previewImages[i]}
+                                alt="preview"
+                                className="w-10 h-10 object-cover rounded-md border border-gray-200"
+                              />
+                            )}
                           <div>
-                            <span className="text-sm text-gray-700 block">{file.name}</span>
+                            <span className="text-sm text-gray-700 block">
+                              {file.name}
+                            </span>
                             <span className="text-xs text-gray-500">
                               {(file.size / 1024).toFixed(2)} KB
                             </span>
                           </div>
                         </div>
-                        <button 
+                        <button
                           type="button"
-                          onClick={() => removeImage(i)} 
+                          onClick={() => removeImage(i)}
                           className="text-red-500 hover:text-red-700 font-semibold text-sm px-2 py-1 rounded"
                         >
-                        <LuTrash2 className="h-5 w-5" />
+                          <LuTrash2 className="h-5 w-5" />
                         </button>
                       </div>
                     ))}
@@ -279,16 +293,16 @@ const NewTakits = () => {
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-8 pt-4 border-t border-gray-100">
-              <button
+            <button
               type="button"
               onClick={() => {
-                setFormData({ 
-                  type: "", 
-                  service: "", 
-                  status: "Open", 
-                  details: "", 
-                  provider: "", 
-                  documents: [] 
+                setFormData({
+                  type: "",
+                  service: "",
+                  status: "Open",
+                  details: "",
+                  provider: "",
+                  documents: [],
                 });
                 setPreviewImages([]);
                 setEditingId(null);
@@ -297,13 +311,12 @@ const NewTakits = () => {
             >
               Reset
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200"
             >
               {editingId ? "Update Ticket" : "Create Ticket"}
             </button>
-          
           </div>
         </form>
       </div>
