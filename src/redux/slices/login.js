@@ -28,7 +28,6 @@ const loginSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("profile");
     },
-     
     updateUser: (state, action) => {
       const updatedProfile = { ...state.profile, ...action.payload };
       state.profile = updatedProfile;
