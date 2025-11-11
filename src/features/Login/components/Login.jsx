@@ -167,7 +167,7 @@ const Login = () => {
         </Formik>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
+        {/* <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?{" "}
           <Link
             to="/signup"
@@ -175,7 +175,9 @@ const Login = () => {
           >
             Sign Up
           </Link>
-        </p>
+        </p> */}
+
+        
       </div>
     </div>
   );
