@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+button > * + * {
+  margin-left: 0.5rem; /* fallback for gap */
+}

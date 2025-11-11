@@ -149,20 +149,7 @@ const Tickets = () => {
           </div>
         </div>
 
-        {/* Active Filter Display */}
-        {activeTab !== "All" && (
-          <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
-            <span className="text-sm text-orange-400">
-              Showing tickets with status: <strong>{activeTab}</strong>
-            </span>
-            <button
-              onClick={() => setActiveTab("All")}
-              className="text-orange-400 hover:text-orange-500 text-sm font-medium"
-            >
-              Clear
-            </button>
-          </div>
-        )}
+      
 
         {/* Table */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -220,7 +207,7 @@ const Tickets = () => {
                           {/* View */}
                           <button
                             onClick={() => handleView(t.id)}
-                            className="p-2.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition group"
+                            className="p-2.5 bg-green-200 text-red-800 rounded-lg hover:bg-green-400 transition group"
                             title="View Ticket"
                           >
                             <Eye size={18} className="group-hover:scale-110 transition" />
@@ -229,7 +216,7 @@ const Tickets = () => {
                           {/* Edit */}
                           <button
                             onClick={() => handleEdit(t.id)}
-                            className="p-2.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition group"
+                            className="p-2.5 bg-yellow-100 text-orange-700 rounded-lg hover:bg-yellow-300 transition group"
                             title="Edit Ticket"
                           >
                             <Edit size={18} className="group-hover:scale-110 transition" />
@@ -238,7 +225,7 @@ const Tickets = () => {
                           {/* Delete */}
                           <button
                             onClick={() => handleDeleteClick(t)}
-                            className="p-2.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition group"
+                            className="p-2.5 bg-orange-200 text-orange-700 rounded-lg hover:bg-orange-400 transition group"
                             title="Delete Ticket"
                           >
                             <Trash2 size={18} className="group-hover:scale-110 transition" />

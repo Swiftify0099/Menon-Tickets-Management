@@ -36,12 +36,11 @@ const ChangePassword = ({ onChangePassword }) => {
     setConfirmPassword("");
   };
   
- 
   const inputBase =
     "w-full pl-11 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none text-gray-700";
 
   return (
-    <div className="min-h-screen flex items-center justify-center  p-4">
+    <div className="min-h-40 flex items-center justify-center  p-4">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-5 border border-gray-200"

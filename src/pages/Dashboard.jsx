@@ -71,32 +71,31 @@ const Dashboard = () => {
     }
   };
 
-  // ✅ Filter tickets based on active tab
+
   const filteredTickets =
     activeTab === "All"
       ? tickets
       : tickets.filter((t) => t.status === activeTab);
 
-  // ✅ Statistics
   const stats = {
     total: tickets.length,
     completed: tickets.filter((t) => t.status === "Completed").length,
     inProgress: tickets.filter((t) => t.status === "In-Progress").length,
   };
 
-  // ✅ Tabs for filtering
+
   const tabs = ["All", "In-Progress", "Completed"];
 
   return (
     <div className="space-y-6 px-3 sm:px-6 lg:px-10 py-4">
-      {/* Header */}
+     
       <div className="flex flex-wrap justify-between items-center">
         <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
           Dashboard
         </h2>
       </div>
 
-      {/* Stats Cards Section */}
+   
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg shadow-md text-center p-4 hover:shadow-lg transition">
           <h3 className="text-sm sm:text-base font-medium text-gray-700">Tickets</h3>

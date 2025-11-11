@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       <div className="text-center border-t p-4">
-        <p className="text-sm text-gray-500">© 2025 MyCompany</p>
+        <p className="text-sm text-gray-500">© 2025 NeoSao </p>
       </div>
     </aside>
   );

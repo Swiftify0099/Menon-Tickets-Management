@@ -17,7 +17,6 @@ const Profile = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // ✅ Load user from localStorage on mount
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");

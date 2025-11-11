@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../Layouts/Layouts";
-import Dashboard from "../pages/Dashboard";
 import NewTakits from "../features/Ticket/TicketCreate/components/TicketCreate";
 import TakitsDetails from "../pages/TakitsDetails";
 import Tickets from "../features/Ticket/AllTickets/components/Tickets";
@@ -13,6 +12,7 @@ import ResetPassword from "../features/Login/components/ResetPassword";
 import ChangePassword from "../pages/scrap/ChangePassword";
 import ViewTicket from "../features/Ticket/AllTickets/components/ViewTickets";
 import UpdateTicket from "../features/Ticket/AllTickets/components/UpdateTicket";
+import Dashboard from "../features/dashboard/components/Dashboard";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +26,7 @@ const router = createBrowserRouter([
       { path: "settings", element: <Settings /> },
       { path: "/ticket/:id", element: <ViewTicket /> },
       { path: "/update-ticket/:id", element: <UpdateTicket /> },
+       { path: "/change-password", element: <ChangePassword /> },
 
 
       {
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/reset-password", element: <ResetPassword /> },
-  { path: "/change-password", element: <ChangePassword /> },
+ 
 
   {
     path: "*",

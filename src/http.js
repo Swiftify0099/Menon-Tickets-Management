@@ -8,7 +8,6 @@ export const http = axios.create({
   },
 });
 
-
 http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -122,3 +121,20 @@ export const ticketlist = async (page = 1, limit = 10) => {
   const resp = await http.post("ticket/list", body);
   return resp.data;
 };
+
+export const deleteDocument = async (documentId) => {
+  const resp = await http.get(`ticket/documents/delete/${documentId}`);
+  return resp.data;
+};
+
+export const updateTicket = async (ticketData) => {
+  const resp = await http.post("ticket/update", ticketData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return resp.data;
+};
+
+export const DashbordCount = async () => {
+  const resp = await http.get("dashboard/count");
+  return resp.data;
+}
