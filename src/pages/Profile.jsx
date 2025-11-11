@@ -1,3 +1,4 @@
+// src/features/Profile/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { getUser, updateProfilePicture } from "../http";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -5,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { updateUser } from "../redux/slices/login";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Building, MapPin, User, Mail, Phone, Edit3 } from "lucide-react";
+import { Building, MapPin, User, Mail, Phone } from "lucide-react";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -17,114 +18,116 @@ const Profile = () => {
     avatar: "",
     role: {},
     department: {},
-    division: {}
+    division: {},
+    id: ""
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // ✅ Load user from localStorage on mount
+  // Load from localStorage on mount
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        setFormData(userData);
-        dispatch(updateUser(userData));
-      }
-    } catch (error) {
-      console.error("Error loading user data:", error);
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      const user = JSON.parse(stored);
+      setFormData(user);
+      dispatch(updateUser(user));
     }
   }, [dispatch]);
 
-  // ✅ Fetch user profile from API
-  const {
-    data: profile,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
+  // Fetch fresh profile from API
+  const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUser,
   });
 
-  // ✅ Mutation - update profile photo
+  // Sync API data → state + storage
+  useEffect(() => {
+    if (profile?.data?.user) {
+      const user = profile.data.user;
+      setFormData(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("profile", JSON.stringify(user));
+      dispatch(updateUser(user));
+    }
+  }, [profile, dispatch]);
+
+  // Photo Upload Mutation
   const updatePhotoMutation = useMutation({
     mutationFn: updateProfilePicture,
     onSuccess: (res) => {
-      let updatedUser = formData;
+      let updatedUser = { ...formData };
+
       if (res?.data?.user) {
         updatedUser = res.data.user;
       } else if (res?.data?.avatar) {
-        updatedUser = { ...formData, avatar: res.data.avatar };
+        updatedUser.avatar = res.data.avatar;
       }
+
+      // Sync everywhere
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem("profile", JSON.stringify(updatedUser));
+      dispatch(updateUser(updatedUser));
+      setFormData(updatedUser);
+
       toast.success("Profile photo updated successfully!");
-      syncUser(updatedUser);
       setSelectedFile(null);
       refetch();
     },
     onError: (err) => {
-      console.error("Photo upload failed:", err);
+      console.error("Upload failed:", err);
       toast.error("Failed to update photo!");
     },
   });
 
-  // ✅ Sync with Redux + localStorage
-  const syncUser = (user) => {
-    setFormData(user);
-    localStorage.setItem("user", JSON.stringify(user));
-    dispatch(updateUser(user));
-  };
-
-  // ✅ When fetched from server, sync to state
-  useEffect(() => {
-    if (profile?.data?.user) syncUser(profile.data.user);
-  }, [profile]);
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) setSelectedFile(file);
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File too large! Max 5MB.");
+        return;
+      }
+      setSelectedFile(file);
+    }
   };
 
   const handlePhotoUpload = () => {
     if (!selectedFile) {
-      toast.warn("Please select a photo first!");
+      toast.warn("Please select a photo!");
       return;
     }
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error("File too large! Please select an image under 5MB.");
-      return;
-    }
-
     updatePhotoMutation.mutate({ profile_photo: selectedFile });
   };
 
-  if (isLoading) return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading profile...</p>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading profile...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (isError) return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-      <p className="text-red-500 text-lg">Failed to load profile.</p>
-    </div>
-  );
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <p className="text-red-500 text-lg">Failed to load profile.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
+      <ToastContainer position="top-right" autoClose={2500} />
 
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
           <p className="text-gray-600 mt-2">View your account information</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Profile Card */}
+          {/* Left: Avatar Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8 text-center">
@@ -152,48 +155,40 @@ const Profile = () => {
                   {formData.role?.role_name || "User"}
                 </div>
               </div>
+
               <div className="p-6 space-y-4">
+                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors w-full text-center block">
+                  Change Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
 
-                <div className="pt-4 space-y-2">
-                  <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-center block">
-                    Change Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-
-                  <button
-                    onClick={handlePhotoUpload}
-                    disabled={updatePhotoMutation.isPending || !selectedFile}
-                    className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200 w-full"
-                  >
-                    {updatePhotoMutation.isPending ? "Uploading..." : "Upload Photo"}
-                  </button>
-                </div>
+                <button
+                  onClick={handlePhotoUpload}
+                  disabled={updatePhotoMutation.isPending || !selectedFile}
+                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors w-full"
+                >
+                  {updatePhotoMutation.isPending ? "Uploading..." : "Upload Photo"}
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Profile Information (Read Only) */}
+          {/* Right: Info */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-white">Profile Information</h2>
-                  <p className="text-orange-100 text-sm mt-1">Your personal details</p>
-                </div>
-
+              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+                <h2 className="text-xl font-bold text-white">Profile Information</h2>
+                <p className="text-orange-100 text-sm mt-1">Your personal details</p>
               </div>
 
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Personal Information */}
                   <div className="space-y-6">
-
-
                     <div className="space-y-1">
                       <label className="block text-sm font-medium text-gray-500">First Name</label>
                       <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
@@ -209,24 +204,23 @@ const Profile = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-500">Email Address</label>
-                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
+                      <label className="block text-sm font-medium text-gray-500">Email</label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <Mail size={16} className="mr-2 text-orange-500" />
                         {formData.email}
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-500">Phone Number</label>
-                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
-                        {formData.phone}
+                      <label className="block text-sm font-medium text-gray-500">Phone</label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <Phone size={16} className="mr-2 text-orange-500" />
+                        {formData.phone || "—"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Organizational Information */}
                   <div className="space-y-6">
-
-
                     <div className="space-y-1">
                       <label className="block text-sm font-medium text-gray-500">Role</label>
                       <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
@@ -239,7 +233,7 @@ const Profile = () => {
                       <label className="block text-sm font-medium text-gray-500">Department</label>
                       <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
                         <Building size={16} className="mr-2 text-orange-500" />
-                        {formData.department?.department_name || "No Department"}
+                        {formData.department?.department_name || "—"}
                       </div>
                     </div>
 
@@ -247,7 +241,7 @@ const Profile = () => {
                       <label className="block text-sm font-medium text-gray-500">Division</label>
                       <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
                         <MapPin size={16} className="mr-2 text-orange-500" />
-                        {formData.division?.division_name || "No Division"}
+                        {formData.division?.division_name || "—"}
                       </div>
                     </div>
 
@@ -259,8 +253,6 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
-
-
               </div>
             </div>
           </div>

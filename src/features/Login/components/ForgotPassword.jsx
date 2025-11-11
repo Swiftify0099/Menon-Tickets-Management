@@ -4,18 +4,23 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { forgotPassword } from "../../../http"; // ✅ correct import
+import { forgotPassword } from "../../../http";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-const navigate = useNavigate();
-  // ✅ UseMutation for API call
+  const navigate = useNavigate();
+
   const { mutate, isPending } = useMutation({
     mutationFn: forgotPassword,
     onSuccess: (res) => {
       toast.success("✅ Password reset link sent to your email!");
-      // Do not navigate here, let user click the link from email
-      navigate("/reset-password");
+
+      // 🧠 If backend response includes token or link, open it directly
+      if (res?.link) {
+        // Optional: redirect user to reset page automatically
+        const token = new URL(res.link).searchParams.get("token");
+        navigate(`/reset-password?token=${token}`);
+      }
     },
     onError: (err) => {
       toast.error("❌ Failed to send reset link!");
@@ -29,8 +34,6 @@ const navigate = useNavigate();
       toast.warn("Please enter your email");
       return;
     }
-
-    // ✅ API call
     mutate({ email });
   };
 
