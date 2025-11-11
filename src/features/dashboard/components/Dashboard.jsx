@@ -146,6 +146,8 @@ const Dashboard = () => {
     total: countData?.total_tickets || 0,
     completed: countData?.completed || 0,
     inProgress: countData?.in_progress || 0,
+    underverification: countData?.under_verification || 0,
+    
   };
 
   return (
@@ -158,7 +160,7 @@ const Dashboard = () => {
       </div>
 
 {/* Dashboard Stats Section */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
   {/* Tickets */}
   <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
@@ -186,6 +188,16 @@ const Dashboard = () => {
     </h3>
     <p className="text-4xl font-extrabold text-blue-800 mt-3">
       {countLoading ? "..." : stats.inProgress}
+    </p>
+  </div>
+
+    {/* under verification */}
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+    <h3 className="text-sm font-semibold text-orange-700 uppercase tracking-wide">
+     UNDER VERIFICATION
+    </h3>
+    <p className="text-4xl font-extrabold text-orange-800 mt-3">
+      {countLoading ? "..." : stats.underverification}
     </p>
   </div>
 
@@ -219,10 +231,8 @@ const Dashboard = () => {
 {/* Tickets Table */}
       <div className="space-y-7 p-4 ">
     
-
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        
-
+      
           {totalPages > 1 && (
             <div className="bg-gray-50 px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
               <p className="text-sm text-gray-700">

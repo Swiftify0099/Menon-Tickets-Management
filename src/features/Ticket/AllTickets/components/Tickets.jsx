@@ -20,11 +20,10 @@ const Tickets = () => {
   const statusOptions = [
     "All",
     "Pending",
+    "In Progress",
     "Mark as Completed",
-    "Re Opened",
-    "Allocated",
-    "Completed",
-    "Working Progress"
+    "ReOpened",
+   
   ];
 
   const {
@@ -97,10 +96,9 @@ const Tickets = () => {
     if (statusLower === "mark as completed") return "bg-teal-100 text-teal-800";
     return "bg-gray-100 text-gray-700";
   };
-
   return (
     <>
-      <div className="space-y-6 p-4 sm:p-6">
+      <div className="space-y-6 ">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-2xl font-bold text-gray-800">All Tickets</h2>
@@ -139,18 +137,8 @@ const Tickets = () => {
               )}
             </div>
 
-            <button
-              onClick={() => refetch()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-orange-400 hover:bg-orange-400 text-white rounded-lg text-sm font-medium transition-all shadow-md"
-            >
-              {isFetching && <Loader2 className="animate-spin" size={16} />}
-              Refresh
-            </button>
           </div>
         </div>
-
-      
-
         {/* Table */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">

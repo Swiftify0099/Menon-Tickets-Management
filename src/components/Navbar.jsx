@@ -64,12 +64,6 @@ const Navbar = ({ onToggleSidebar }) => {
     >
       {/* Left - Logo + Title */}
       <div className="flex items-center gap-4">
-        <button
-          onClick={onToggleSidebar}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
-        >
-          <Menu size={22} className="text-gray-700" />
-        </button>
         <img
           src={Logo}
           alt="Logo"
@@ -78,10 +72,7 @@ const Navbar = ({ onToggleSidebar }) => {
         <h1 className="text-2xl md:text-3xl font-extrabold text-orange-500 tracking-wide drop-shadow-md">
           Menon Ticket System
         </h1>
-
-
       </div>
-
       {/* Right - Profile */}
       <div className="relative">
         <button
@@ -96,15 +87,12 @@ const Navbar = ({ onToggleSidebar }) => {
               {currentUser?.role?.role_name || "User"}
             </span>
           </div>
-
           <img
             src={currentUser?.avatar || "/default-avatar.png"}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
           />
         </button>
-
-        {/* Dropdown - All items now have icons & consistent style */}
         {dropdownOpen && (
           <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fadeIn">
             {/* Profile */}
@@ -116,6 +104,18 @@ const Navbar = ({ onToggleSidebar }) => {
               <User size={16} />
               <span>Profile</span>
             </Link>
+            
+               {/* Home - Now with icon & same style */}
+            <button
+              onClick={() => {
+                setDropdownOpen(false);
+                navigate("/");
+              }}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
+            >
+              <Home size={16} />
+              <span>Home</span>
+            </button>
 
             {/* Change Password */}
             <button
@@ -129,17 +129,7 @@ const Navbar = ({ onToggleSidebar }) => {
               <span>Change Password</span>
             </button>
 
-            {/* Home - Now with icon & same style */}
-            <button
-              onClick={() => {
-                setDropdownOpen(false);
-                navigate("/");
-              }}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
-            >
-              <Home size={16} />
-              <span>Home</span>
-            </button>
+         
 
             {/* Logout */}
             <button
