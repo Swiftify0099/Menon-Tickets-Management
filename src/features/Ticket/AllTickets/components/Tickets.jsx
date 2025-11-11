@@ -223,13 +223,13 @@ const Tickets = () => {
                           </button>
 
                           {/* Delete */}
-                          <button
+                          {/* <button
                             onClick={() => handleDeleteClick(t)}
                             className="p-2.5 bg-orange-200 text-orange-700 rounded-lg hover:bg-orange-400 transition group"
                             title="Delete Ticket"
                           >
                             <Trash2 size={18} className="group-hover:scale-110 transition" />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>

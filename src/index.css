@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
-button > * + * {
-  margin-left: 0.5rem; /* fallback for gap */
+/* react-select base styles */
+.react-select__control {
+  @apply border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100;
+}
+.react-select__placeholder {
+  @apply text-gray-500;
+}
+.react-select__single-value {
+  @apply text-gray-800;
+}
+.react-select__menu {
+  @apply z-50;
 }

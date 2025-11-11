@@ -14,6 +14,7 @@ import { loadTickets } from "../../../redux/slices/ticketsSlice";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ticketlist, http, DashbordCount } from "../../../http";
 import { toast } from "react-toastify";
+import Tickets from "../../Ticket/AllTickets/components/Tickets";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -217,143 +218,10 @@ const Dashboard = () => {
 
 {/* Tickets Table */}
       <div className="space-y-7 p-4 ">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-            All Tickets
-          </h2>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {/* ✅ Status Dropdown */}
-            <div className="relative w-full sm:w-auto">
-             
-
-              {showStatusFilter && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                  <div className="py-2">
-                    {statusOptions.map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => {
-                          setActiveTab(status);
-                          setShowStatusFilter(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-orange-50 transition ${
-                          activeTab === status
-                            ? "bg-orange-100 text-orange-400 font-medium"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {status}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-          </div>
-        </div>
+    
 
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="animate-spin text-orange-600" size={40} />
-              </div>
-            ) : isError ? (
-              <div className="text-center py-12 text-orange-500 font-medium">
-                Failed to load tickets. Please try again.
-              </div>
-            ) : filteredTickets.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <FolderOpenDot
-                  size={48}
-                  className="mx-auto mb-4 text-gray-300"
-                />
-                <p>No tickets found</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto w-full">
-                <table className="w-full min-w-[900px] text-sm">
-                  <thead className="bg-gradient-to-r from-orange-500 to-orange-500 text-white">
-                    <tr>
-                      {[
-                        "Ticket No",
-                        "Service",
-                        "Provider",
-                        "Assign To",
-                        "Assign Date",
-                        "Status",
-                        "Created",
-                        "Actions",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="px-5 py-3 text-left text-xs sm:text-sm font-semibold"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredTickets.map((t) => (
-                      <tr
-                        key={t.id}
-                        className="hover:bg-gray-50 transition text-xs sm:text-sm"
-                      >
-                        <td className="px-5 py-3 font-mono font-bold text-black">
-                          {t.ticket_number}
-                        </td>
-                        <td className="px-5 py-3">{t.service_name}</td>
-                        <td className="px-5 py-3">{t.provider_name}</td>
-                        <td className="px-5 py-3 text-gray-600">
-                          {t.assign_user_name || "—"}
-                        </td>
-                        <td className="px-5 py-3 text-gray-600">
-                          {t.assign_date || "—"}
-                        </td>
-                        <td className="px-5 py-3">
-                          <span
-                            className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(
-                              t.status
-                            )}`}
-                          >
-                            {t.status || "Open"}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3 text-gray-600">
-                          {t.created_at}
-                        </td>
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <button
-                              onClick={() => handleView(t.id)}
-                              className="p-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(t.id)}
-                              className="p-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteClick(t)}
-                              className="p-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+        
 
           {totalPages > 1 && (
             <div className="bg-gray-50 px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -423,7 +291,10 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <Tickets/>
     </div>
+
+    
   );
 };
 

@@ -17,6 +17,7 @@ const Profile = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
+  // ✅ Load user from localStorage on mount
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -123,7 +124,7 @@ const Profile = () => {
   if (isError) return <p className="text-red-500">Failed to load profile.</p>;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white shadow-lg p-6 rounded-lg space-y-4">
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
 
       <h2 className="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>

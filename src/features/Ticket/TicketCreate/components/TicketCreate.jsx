@@ -1,7 +1,19 @@
-// src/pages/NewTakits.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2, Upload, X, ArrowLeft, CheckCircle, FileText, Image, File } from "lucide-react";
+// src/pages/TicketCreate.jsx
+import React, { useState, useMemo } from "react";
+import  { useNavigate } from "react-router-dom";
+import {
+  Loader2,
+  Upload,
+  X,
+  ArrowLeft,
+  CheckCircle,
+  FileText,
+  Image,
+  File,
+} from "lucide-react";
+import Select from "react-select";
+import { toast, ToastContainer } from "react-toastify"; // Import toast + container
+import "react-toastify/dist/ReactToastify.css"; // Import CSS
 import { useProviders } from "../hooks/UseProviders";
 import { useServices } from "../hooks/UseServices";
 import { useTicketCreate } from "../hooks/UseTicketCreate";
@@ -21,15 +33,55 @@ const TicketCreate = () => {
   const { loading, success, ticketNumber, submit } = useTicketCreate();
   const { documents, previewFiles, addFiles, removeFile } = useFileUpload();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  /* ---------- React-Select Options ---------- */
+  const providerOptions = useMemo(
+    () =>
+      providers.map((p) => ({
+        value: p.id,
+        label: p.provider_name,
+      })),
+    [providers]
+  );
+
+  const serviceOptions = useMemo(
+    () =>
+      servicesList.map((s) => ({
+        value: s.id,
+        label: s.service_name,
+      })),
+    [servicesList]
+  );
+
+  const handleProviderChange = (selected) => {
+    setForm((prev) => ({
+      ...prev,
+      provider_id: selected?.value || "",
+      service_id: "",
+    }));
   };
 
+  const handleServiceChange = (selected) => {
+    setForm((prev) => ({
+      ...prev,
+      service_id: selected?.value || "",
+    }));
+  };
+
+  const handleTextChange = (e) => {
+    setForm((prev) => ({ ...prev, ticket_details: e.target.value }));
+  };
+
+  /* ---------- Submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.provider_id || !form.service_id) {
-      alert("Please select Provider and Service");
+      toast.error("Please select Provider and Service");
+      return;
+    }
+
+    if (!form.ticket_details.trim()) {
+      toast.error("Please describe your issue");
       return;
     }
 
@@ -54,22 +106,78 @@ const TicketCreate = () => {
       stored.unshift(newTicket);
       localStorage.setItem("dashboard-tickets", JSON.stringify(stored));
 
-      setTimeout(() => navigate("/tickets"), 2500);
+      // Show success toast with ticket number
+      toast.success(
+        <div>
+          <p className="font-semibold">Ticket Created Successfully!</p>
+          <p className="text-sm mt-1">
+            Your ticket number is:{" "}
+            <span className="font-mono bg-green-100 text-green-800 px-2 py-1 rounded">
+              {data.ticket_number}
+            </span>
+          </p>
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
+      );
+
+      // Redirect after toast
+      setTimeout(() => navigate("/"), 2500);
     });
   };
 
+  /* ---------- File Icon Helper ---------- */
   const getFileIcon = (name) => {
     const ext = name.split(".").pop().toLowerCase();
-    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return <Image className="w-4 h-4 text-blue-600" />;
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext))
+      return <Image className="w-4 h-4 text-blue-600" />;
     if (["pdf"].includes(ext)) return <FileText className="w-4 h-4 text-red-600" />;
     return <File className="w-4 h-4 text-gray-600" />;
   };
 
+  /* ---------- React-Select Styles ---------- */
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      borderRadius: "0.5rem",
+      borderColor: "#d1d5db",
+      padding: "0.25rem 0",
+      fontSize: "1rem",
+      "&:hover": { borderColor: "#9ca3af" },
+      "&:focus-within": { borderColor: "#f97316", ring: "2px solid #fed7aa" },
+    }),
+    placeholder: (base) => ({ ...base, color: "#9ca3af" }),
+    singleValue: (base) => ({ ...base, color: "#1f2937" }),
+    menu: (base) => ({ ...base, zIndex: 9999 }),
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6">
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       <div className="max-w-8xl mx-auto">
-        {/* Compact Header */}
-        <div className="flex items-center  gap-3 mb-6">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
             className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200"
@@ -78,37 +186,21 @@ const TicketCreate = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Create New Ticket</h1>
-        
           </div>
         </div>
 
-        {/* Success Message */}
-        {success && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg flex items-center gap-4">
-            <CheckCircle size={32} />
-            <div>
-              <h3 className="text-lg font-bold">Ticket Created Successfully!</h3>
-              <p className="text-sm mt-1">
-                Your ticket number is:{" "}
-                <span className="font-mono text-lg bg-white text-green-700 px-3 py-1 rounded-md">
-                  {ticketNumber}
-                </span>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Main Form Card */}
+        {/* Form Card */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-          {/* Form Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600  rounded-lg text-white px-6 py-4">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-t-xl text-white px-6 py-4">
             <h2 className="text-xl font-bold">Ticket Information</h2>
-            <p className="text-orange-100 text-sm mt-1">All fields marked with * are required</p>
+            <p className="text-orange-100 text-sm mt-1">
+              All fields marked with * are required
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
+              {/* LEFT */}
               <div className="space-y-6">
                 {/* Service Provider */}
                 <div>
@@ -118,18 +210,17 @@ const TicketCreate = () => {
                   {loadingProviders ? (
                     <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
                   ) : (
-                    <select
-                      name="provider_id"
-                      value={form.provider_id}
-                      onChange={handleChange}
+                    <Select
+                      options={providerOptions}
+                      value={providerOptions.find((o) => o.value === form.provider_id) || null}
+                      onChange={handleProviderChange}
+                      placeholder="Search provider..."
+                      isSearchable
+                      isClearable
+                      styles={selectStyles}
+                      classNamePrefix="react-select"
                       required
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition"
-                    >
-                      <option value="">Select Provider</option>
-                      {providers.map((p) => (
-                        <option key={p.id} value={p.id}>{p.provider_name}</option>
-                      ))}
-                    </select>
+                    />
                   )}
                 </div>
 
@@ -140,23 +231,22 @@ const TicketCreate = () => {
                   </label>
                   {loadingServices ? (
                     <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
-                  ) : servicesList.length === 0 ? (
+                  ) : serviceOptions.length === 0 ? (
                     <div className="px-4 py-3 bg-gray-50 border border-dashed rounded-lg text-gray-500 text-center text-sm">
                       {form.provider_id ? "No services available" : "Select provider first"}
                     </div>
                   ) : (
-                    <select
-                      name="service_id"
-                      value={form.service_id}
-                      onChange={handleChange}
+                    <Select
+                      options={serviceOptions}
+                      value={serviceOptions.find((o) => o.value === form.service_id) || null}
+                      onChange={handleServiceChange}
+                      placeholder="Search service..."
+                      isSearchable
+                      isClearable
+                      styles={selectStyles}
+                      classNamePrefix="react-select"
                       required
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition"
-                    >
-                      <option value="">Select Service</option>
-                      {servicesList.map((s) => (
-                        <option key={s.id} value={s.id}>{s.service_name}</option>
-                      ))}
-                    </select>
+                    />
                   )}
                 </div>
 
@@ -171,27 +261,44 @@ const TicketCreate = () => {
                       <span className="text-sm font-medium text-orange-600 hover:text-orange-700">
                         Click to upload files
                       </span>
-                      <input type="file" multiple onChange={addFiles} className="hidden" />
+                      <input
+                        type="file"
+                        multiple
+                        onChange={addFiles}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                      />
                     </label>
-                    <p className="text-gray-500 text-xs mt-1">PNG, JPG, PDF, DOC • Max 10MB</p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      PNG, JPG, PDF, DOC • Max 10 MB
+                    </p>
                   </div>
 
-                  {/* File List */}
+                  {/* Preview List */}
                   {previewFiles.length > 0 && (
                     <div className="mt-4 space-y-2">
-                      <p className="text-xs font-medium text-gray-600">{previewFiles.length} file(s) attached</p>
+                      <p className="text-xs font-medium text-gray-600">
+                        {previewFiles.length} file(s) attached
+                      </p>
                       {previewFiles.map((file, i) => (
-                        <div key={i} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <div
+                          key={i}
+                          className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200"
+                        >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white rounded border">{getFileIcon(file.name)}</div>
+                            <div className="p-2 bg-white rounded border">
+                              {getFileIcon(file.name)}
+                            </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-800 truncate">{file.name}</p>
+                              <p className="text-sm font-medium text-gray-800 truncate">
+                                {file.name}
+                              </p>
                               <p className="text-xs text-gray-500">{file.size}</p>
                             </div>
                           </div>
-                          <button 
-                            type="button" 
-                            onClick={() => removeFile(i)} 
+                          <button
+                            type="button"
+                            onClick={() => removeFile(i)}
                             className="text-red-500 hover:bg-red-50 p-1 rounded"
                           >
                             <X size={16} />
@@ -203,9 +310,9 @@ const TicketCreate = () => {
                 </div>
               </div>
 
-              {/* Right Column */}
+              {/* RIGHT */}
               <div className="space-y-6">
-                {/* Ticket Details */}
+                {/* Issue Description */}
                 <div className="h-full flex flex-col">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Issue Description <span className="text-red-500">*</span>
@@ -213,11 +320,15 @@ const TicketCreate = () => {
                   <textarea
                     name="ticket_details"
                     value={form.ticket_details}
-                    onChange={handleChange}
+                    onChange={handleTextChange}
                     required
-                    placeholder="Please describe your issue in detail. Include steps to reproduce, error messages, and what you expected to happen..."
+                    placeholder="Please describe your issue in detail..."
                     className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition min-h-[200px]"
+                    minLength={10}
                   />
+                  <p className="text-xs text-gray-500 mt-1 text-right">
+                    {form.ticket_details.length} / 1000
+                  </p>
                 </div>
 
                 {/* Action Buttons */}
@@ -229,13 +340,23 @@ const TicketCreate = () => {
                   >
                     Cancel
                   </button>
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 shadow-sm hover:shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 shadow-sm hover:shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px] h-11"
                   >
-                    {loading && <Loader2 className="animate-spin" size={16} />}
-                    {loading ? "Creating..." : "Create Ticket"}
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                        <span>Creating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Create Ticket</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

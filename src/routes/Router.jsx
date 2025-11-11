@@ -10,8 +10,8 @@ import Login from "../features/Login/components/Login";
 import ForgotPassword from "../features/Login/components/ForgotPassword";
 import ResetPassword from "../features/Login/components/ResetPassword";
 import ChangePassword from "../pages/scrap/ChangePassword";
-import ViewTicket from "../features/Ticket/AllTickets/components/ViewTickets";
-import UpdateTicket from "../features/Ticket/AllTickets/components/UpdateTicket";
+import ViewTicket from "../features/Ticket/ViewTickets/components/ViewTickets";
+import UpdateTicket from "../features/Ticket/UpdateTicket/components/UpdateTicket";
 import Dashboard from "../features/dashboard/components/Dashboard";
 
 const router = createBrowserRouter([
@@ -20,13 +20,13 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <Dashboard /> },
+      { index: true, element: <Tickets /> },
       { path: "new-takits", element: <NewTakits /> },
       { path: "takits-details/:id", element: <TakitsDetails /> },
-      { path: "tickets", element: <Tickets /> },
       { path: "settings", element: <Settings /> },
       { path: "/ticket/:id", element: <ViewTicket /> },
       { path: "/update-ticket/:id", element: <UpdateTicket /> },
-       { path: "/change-password", element: <ChangePassword /> },
+      { path: "/change-password", element: <ChangePassword /> },
 
 
       {

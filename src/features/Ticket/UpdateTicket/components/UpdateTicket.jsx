@@ -1,6 +1,7 @@
 // src/pages/UpdateTicket.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Select from 'react-select';
 import { Loader2, Upload, X, ArrowLeft, CheckCircle, FileText, Image, File, Eye, Download, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,6 +31,24 @@ const UpdateTicket = () => {
   const [deletingDocument, setDeletingDocument] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
+
+  // Convert providers to react-select format
+  const providerOptions = providers.map(provider => ({
+    value: provider.id.toString(),
+    label: provider.provider_name
+  }));
+
+  // Convert services to react-select format
+  const serviceOptions = servicesList.map(service => ({
+    value: service.id.toString(),
+    label: service.service_name
+  }));
+
+  // Find current selected provider
+  const selectedProvider = providerOptions.find(option => option.value === form.service_provider_id);
+
+  // Find current selected service
+  const selectedService = serviceOptions.find(option => option.value === form.service_id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,13 +118,26 @@ const UpdateTicket = () => {
     fetchServices();
   }, [form.service_provider_id]);
 
-  const handleChange = (e) => {
+  const handleProviderChange = (selectedOption) => {
+    setForm(prev => ({
+      ...prev,
+      service_provider_id: selectedOption ? selectedOption.value : "",
+      service_id: "" // Reset service when provider changes
+    }));
+  };
+
+  const handleServiceChange = (selectedOption) => {
+    setForm(prev => ({
+      ...prev,
+      service_id: selectedOption ? selectedOption.value : ""
+    }));
+  };
+
+  const handleTextChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
-      [name]: value,
-      // Reset service_id when provider changes
-      ...(name === 'service_provider_id' && { service_id: "" })
+      [name]: value
     }));
   };
 
@@ -331,24 +363,60 @@ const UpdateTicket = () => {
         formData.append("documents[]", file);
       });
 
+      // Debug: Log FormData contents
+      console.log('FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
       const response = await updateTicket(formData);
 
-      if (response.data.status === 200) {
+      // Debug: Log the complete response
+      console.log('Full API Response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response status:', response.status);
+
+      // Comprehensive success checking
+      const isSuccess = 
+        response?.data?.status === 200 ||
+        response?.status === 200 ||
+        response?.data?.success === true ||
+        response?.success === true ||
+        response?.data?.message?.toLowerCase().includes('success') ||
+        response?.data?.message?.toLowerCase().includes('updated') ||
+        (response?.data && Object.keys(response.data).length > 0); // If we have any data, consider it success
+
+      if (isSuccess) {
         setSuccess(true);
         toast.success('Ticket updated successfully!');
         setTimeout(() => {
           navigate(`/ticket/${id}`);
         }, 2000);
       } else {
-        toast.error(response.data.message || "Failed to update ticket");
+        // Extract error message from various possible locations
+        const errorMessage = 
+          response?.data?.message ||
+          response?.message ||
+          response?.data?.error ||
+          response?.error ||
+          'Failed to update ticket';
+
+        console.log('Update failed with message:', errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error('Error updating ticket:', error);
-      if (error.response?.data?.message) {
-        toast.error(`Error: ${error.response.data.message}`);
-      } else {
-        toast.error("Error updating ticket. Please try again.");
-      }
+      console.error('Error response:', error.response);
+      
+      // More comprehensive error handling
+      const errorMessage = 
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.statusText ||
+        error.message ||
+        "Error updating ticket. Please try again.";
+
+      toast.error(errorMessage);
     } finally {
       setUpdating(false);
     }
@@ -360,6 +428,46 @@ const UpdateTicket = () => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Custom styles for react-select
+  const customStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: '52px',
+      border: '1px solid #D1D5DB',
+      borderRadius: '0.5rem',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(249, 115, 22, 0.1)' : 'none',
+      borderColor: state.isFocused ? '#f97316' : '#D1D5DB',
+      '&:hover': {
+        borderColor: state.isFocused ? '#f97316' : '#9CA3AF'
+      },
+      fontSize: '1rem',
+      transition: 'all 0.2s'
+    }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: '1rem',
+      padding: '12px 16px',
+      backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#ffedd5' : 'white',
+      color: state.isSelected ? 'white' : '#374151',
+      '&:active': {
+        backgroundColor: '#ea580c'
+      }
+    }),
+    menu: (base) => ({
+      ...base,
+      borderRadius: '0.5rem',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: '#9CA3AF'
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: '#374151'
+    })
   };
 
   if (loading) {
@@ -389,7 +497,7 @@ const UpdateTicket = () => {
         pauseOnHover
         theme="light"
       />
-      <div className="max-w-8xl mx-auto ">
+      <div className="max-w-8xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button
@@ -404,17 +512,7 @@ const UpdateTicket = () => {
           </div>
         </div>
 
-        {/* Success Message */}
-        {success && (
-          <div className="mb-6 p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg flex items-center gap-4 animate-in slide-in-from-top duration-500">
-            <CheckCircle size={32} />
-            <div>
-              <h3 className="text-lg font-bold">Ticket Updated Successfully!</h3>
-              <p className="text-sm mt-1">Redirecting to ticket details...</p>
-            </div>
-          </div>
-        )}
-
+    
         {/* Main Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4">
@@ -431,18 +529,15 @@ const UpdateTicket = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Service Provider <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    name="service_provider_id"
-                    value={form.service_provider_id}
-                    onChange={handleChange}
+                  <Select
+                    value={selectedProvider}
+                    onChange={handleProviderChange}
+                    options={providerOptions}
+                    placeholder="Select Provider"
+                    isSearchable
+                    styles={customStyles}
                     required
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all duration-200 hover:border-gray-400"
-                  >
-                    <option value="">Select Provider</option>
-                    {providers.map((p) => (
-                      <option key={p.id} value={p.id}>{p.provider_name}</option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 {/* Service */}
@@ -450,19 +545,16 @@ const UpdateTicket = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Service <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    name="service_id"
-                    value={form.service_id}
-                    onChange={handleChange}
+                  <Select
+                    value={selectedService}
+                    onChange={handleServiceChange}
+                    options={serviceOptions}
+                    placeholder="Select Service"
+                    isSearchable
+                    isDisabled={!form.service_provider_id}
+                    styles={customStyles}
                     required
-                    disabled={!form.service_provider_id}
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed hover:border-gray-400"
-                  >
-                    <option value="">Select Service</option>
-                    {servicesList.map((s) => (
-                      <option key={s.id} value={s.id}>{s.service_name}</option>
-                    ))}
-                  </select>
+                  />
                   {!form.service_provider_id && (
                     <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                       <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
@@ -609,7 +701,7 @@ const UpdateTicket = () => {
                   <textarea
                     name="ticket_details"
                     value={form.ticket_details}
-                    onChange={handleChange}
+                    onChange={handleTextChange}
                     required
                     placeholder="Describe the issue in detail... Please include any relevant information that will help us resolve your ticket quickly."
                     className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition-all duration-200 hover:border-gray-400 min-h-[300px]"
@@ -620,27 +712,25 @@ const UpdateTicket = () => {
                     <span>{form.ticket_details.length} / 1000</span>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
-                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-500" // Debug border
-                    style={{ backgroundColor: '#f97316' }}
-                  >
-                    {console.log('Button state - updating:', updating, 'disabled:', updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10)}
-                    {updating ? "Updating..." : "Update Ticket"}
-                  </button>
-                </div>
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
+                className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updating ? "Updating..." : "Update Ticket"}
+              </button>
             </div>
           </form>
         </div>
