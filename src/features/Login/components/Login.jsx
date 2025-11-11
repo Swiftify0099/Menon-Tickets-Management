@@ -6,15 +6,20 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 import { loginUser } from "../../../http";
 import { login, RemberMe } from "../../../redux/slices/login";
+
+// Replace with your actual logo path
+import Logo from "../../../assets/menon-logo.png";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [rememberMe, setRememberMe] = useState(false);
 
-  // ✅ Prefill if RememberMe active
   const [initialValues, setInitialValues] = useState({
     email: "",
     password: "",
@@ -34,22 +39,20 @@ const Login = () => {
     }
   }, []);
 
-  // ✅ Validation Schema
   const validationSchema = Yup.object({
     email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
+      .email(t('login.invalid_email', 'Invalid email format'))
+      .required(t('login.email_required', 'Email is required')),
+    password: Yup.string().required(t('login.password_required', 'Password is required')),
   });
 
-  // ✅ React Query Login Mutation
   const { mutate, isPending } = useMutation({
     mutationFn: loginUser,
     onSuccess: (response, variables) => {
       const { token, user } = response?.data || {};
 
       if (!token) {
-        toast.error("Invalid login response");
+        toast.error(t('login.invalid_response', 'Invalid login response'));
         return;
       }
 
@@ -62,27 +65,41 @@ const Login = () => {
         })
       );
 
-      toast.success("Login successful!");
+      toast.success(t('login.success', 'Login successful!'));
       setTimeout(() => navigate("/"), 1500);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Login failed");
+      toast.error(error?.response?.data?.message || t('login.failed', 'Login failed'));
     },
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-gray-100 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={2000} />
+   {/* Language Switcher – Top-Left */}
+      <div className="absolute top-6 left-6 z-10">
+        <LanguageSwitcher />
+      </div>
 
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md border border-gray-200">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          Welcome Back 👋
-        </h2>
-        <p className="text-center text-gray-600 text-sm sm:text-base mb-6">
-          Please log in to your account
-        </p>
+      <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+        {/* Logo & Welcome Section */}
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-4">
+            <img
+              src={Logo}
+              alt={t('login.logo_alt', 'Menon Initiator Logo')}
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {t('login.welcome', 'Welcome,')} <span className="text-orange-600">{t('login.menon_initiator', 'Menon Initiator')}</span>
+          </h2>
+          <p className="text-gray-600 text-sm mt-1">
+            {t('login.please_login', 'Please log in to your account')}
+          </p>
+        </div>
 
-        {/* ✅ Formik Form */}
+        {/* Form */}
         <Formik
           initialValues={initialValues}
           enableReinitialize
@@ -91,19 +108,19 @@ const Login = () => {
             mutate(values);
           }}
         >
-          <Form className="space-y-4">
+          <Form className="space-y-5">
             {/* Email */}
             <div>
               <label className="block font-medium text-gray-700 text-sm mb-1">
-                Email
+                {t('login.email', 'Email')}
               </label>
               <Field
                 type="email"
                 name="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300
-                           focus:ring-2 focus:ring-orange-500 focus:outline-none
-                           text-sm sm:text-base"
+                placeholder={t('login.email_placeholder', 'Enter your email')}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 
+                           focus:ring-2 focus:ring-orange-500 focus:border-orange-500 
+                           focus:outline-none transition-all text-sm sm:text-base"
               />
               <ErrorMessage
                 name="email"
@@ -115,15 +132,15 @@ const Login = () => {
             {/* Password */}
             <div>
               <label className="block font-medium text-gray-700 text-sm mb-1">
-                Password
+                {t('login.password', 'Password')}
               </label>
               <Field
                 type="password"
                 name="password"
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300
-                           focus:ring-2 focus:ring-orange-500 focus:outline-none
-                           text-sm sm:text-base"
+                placeholder={t('login.password_placeholder', 'Enter your password')}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 
+                           focus:ring-2 focus:ring-orange-500 focus:border-orange-500 
+                           focus:outline-none transition-all text-sm sm:text-base"
               />
               <ErrorMessage
                 name="password"
@@ -133,21 +150,21 @@ const Login = () => {
             </div>
 
             {/* Remember Me + Forgot Password */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm mt-2">
-              <label className="flex items-center gap-2 text-gray-700">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+              <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded accent-orange-500"
+                  className="w-4 h-4 rounded accent-orange-600 focus:ring-orange-500"
                 />
-                Remember me
+                <span>{t('login.remember_me', 'Remember me')}</span>
               </label>
               <Link
                 to="/forgot-password"
-                className="text-orange-500 hover:text-orange-600 transition-colors"
+                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
               >
-                Forgot Password?
+                {t('login.forgot_password', 'Forgot Password?')}
               </Link>
             </div>
 
@@ -155,29 +172,28 @@ const Login = () => {
             <button
               type="submit"
               disabled={isPending}
-              className={`w-full text-white py-2 rounded-lg mt-4 font-semibold text-sm sm:text-base transition duration-200 ${
-                isPending
-                  ? "bg-orange-400 cursor-not-allowed"
-                  : "bg-orange-500 hover:bg-orange-600"
-              }`}
+              className={`w-full py-3 rounded-lg font-semibold text-white text-sm sm:text-base 
+                transition-all duration-200 shadow-md ${
+                  isPending
+                    ? "bg-orange-400 cursor-not-allowed"
+                    : "bg-orange-600 hover:bg-orange-700 active:scale-95"
+                }`}
             >
-              {isPending ? "Logging in..." : "Login"}
+              {isPending ? t('login.logging_in', 'Logging in...') : t('login.login', 'Login')}
             </button>
           </Form>
         </Formik>
 
-        {/* Footer */}
+        {/* Optional Footer */}
         {/* <p className="text-center text-sm text-gray-600 mt-6">
-          Don’t have an account?{" "}
+          {t('login.no_account', "Don't have an account?")}{" "}
           <Link
             to="/signup"
-            className="text-orange-500 hover:text-orange-600 transition-colors"
+            className="text-orange-600 hover:text-orange-700 font-medium"
           >
-            Sign Up
+            {t('login.sign_up', 'Sign Up')}
           </Link>
         </p> */}
-
-        
       </div>
     </div>
   );

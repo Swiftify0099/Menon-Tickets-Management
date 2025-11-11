@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
-import { verifyResetToken, resetPassword } from "../http";
+import { verifyResetToken, resetPassword } from "../../http";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();

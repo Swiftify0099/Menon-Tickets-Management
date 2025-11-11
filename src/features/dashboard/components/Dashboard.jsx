@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { loadTickets } from "../../../redux/slices/ticketsSlice";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ticketlist, http, DashbordCount } from "../../../http";
@@ -27,6 +28,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const statusOptions = [
     "All",
@@ -38,7 +40,6 @@ const Dashboard = () => {
     "Working Progress",
   ];
 
-  // ✅ Fetch Tickets
   const {
     data: ticketData,
     isLoading,
@@ -79,7 +80,7 @@ const Dashboard = () => {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Ticket deleted successfully!");
+      toast.success(t('dashboard.delete_success', 'Ticket deleted successfully!'));
       refetch();
       refetchCount();
       setShowDeleteModal(false);
@@ -87,7 +88,7 @@ const Dashboard = () => {
       setIsDeleting(false);
     },
     onError: () => {
-      toast.error("Failed to delete ticket");
+      toast.error(t('dashboard.delete_failed', 'Failed to delete ticket'));
       setIsDeleting(false);
     },
   });
@@ -147,96 +148,93 @@ const Dashboard = () => {
     completed: countData?.completed || 0,
     inProgress: countData?.in_progress || 0,
     underverification: countData?.under_verification || 0,
-    
   };
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-10 py-4">
       {/* ✅ Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
-          Dashboard
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+          {t('dashboard.title', 'Dashboard')}
         </h2>
       </div>
 
-{/* Dashboard Stats Section */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-  {/* Tickets */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
-    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-      Tickets
-    </h3>
-    <p className="text-4xl font-extrabold text-gray-800 mt-3">
-      {countLoading ? "..." : stats.total}
-    </p>
-  </div>
+      {/* Dashboard Stats Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
+        {/* Tickets */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            {t('dashboard.tickets', 'Tickets')}
+          </h3>
+          <p className="text-4xl font-extrabold text-gray-800 mt-3">
+            {countLoading ? "..." : stats.total}
+          </p>
+        </div>
 
-  {/* Completed */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
-    <h3 className="text-sm font-semibold text-green-600 uppercase tracking-wide">
-      Completed
-    </h3>
-    <p className="text-4xl font-extrabold text-green-800 mt-3">
-      {countLoading ? "..." : stats.completed}
-    </p>
-  </div>
+        {/* Completed */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+          <h3 className="text-sm font-semibold text-green-600 uppercase tracking-wide">
+            {t('dashboard.completed', 'Completed')}
+          </h3>
+          <p className="text-4xl font-extrabold text-green-800 mt-3">
+            {countLoading ? "..." : stats.completed}
+          </p>
+        </div>
 
-  {/* In Progress */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
-    <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
-      In Progress
-    </h3>
-    <p className="text-4xl font-extrabold text-blue-800 mt-3">
-      {countLoading ? "..." : stats.inProgress}
-    </p>
-  </div>
+        {/* In Progress */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+          <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+            {t('dashboard.in_progress', 'In Progress')}
+          </h3>
+          <p className="text-4xl font-extrabold text-blue-800 mt-3">
+            {countLoading ? "..." : stats.inProgress}
+          </p>
+        </div>
 
-    {/* under verification */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
-    <h3 className="text-sm font-semibold text-orange-700 uppercase tracking-wide">
-     UNDER VERIFICATION
-    </h3>
-    <p className="text-4xl font-extrabold text-orange-800 mt-3">
-      {countLoading ? "..." : stats.underverification}
-    </p>
-  </div>
+        {/* under verification */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+          <h3 className="text-sm font-semibold text-orange-700 uppercase tracking-wide">
+            {t('dashboard.under_verification', 'UNDER VERIFICATION')}
+          </h3>
+          <p className="text-4xl font-extrabold text-orange-800 mt-3">
+            {countLoading ? "..." : stats.underverification}
+          </p>
+        </div>
 
-  {/* Create New */}
-  <button
-    onClick={() => navigate("/new-takits")}
-    className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center transition"
-  >
-    <h3 className="text-sm font-semibold uppercase tracking-wide">
-      Create New
-    </h3>
-    <Plus className="mt-3" size={28} />
-  </button>
-</div>
+        {/* Create New */}
+        <button
+          onClick={() => navigate("/new-takits")}
+          className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center transition"
+        >
+          <h3 className="text-sm font-semibold uppercase tracking-wide">
+            {t('dashboard.create_new', 'Create New')}
+          </h3>
+          <Plus className="mt-3" size={28} />
+        </button>
+      </div>
 
-{/* Active Filter Display */}
-{activeTab !== "All" && (
-  <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
-    <span className="text-sm text-orange-400">
-      Showing tickets with status: <strong>{activeTab}</strong>
-    </span>
-    <button
-      onClick={() => setActiveTab("All")}
-      className="text-orange-400 hover:text-orange-500 text-sm font-medium"
-    >
-      Clear
-    </button>
-  </div>
-)}
+      {/* Active Filter Display */}
+      {activeTab !== "All" && (
+        <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+          <span className="text-sm text-orange-400">
+            {t('dashboard.showing_tickets_with_status', 'Showing tickets with status:')} <strong>{activeTab}</strong>
+          </span>
+          <button
+            onClick={() => setActiveTab("All")}
+            className="text-orange-400 hover:text-orange-500 text-sm font-medium"
+          >
+            {t('dashboard.clear', 'Clear')}
+          </button>
+        </div>
+      )}
 
-{/* Tickets Table */}
-      <div className="space-y-7 p-4 ">
-    
+      {/* Tickets Table */}
+      <div className="space-y-7 p-4">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-      
           {totalPages > 1 && (
             <div className="bg-gray-50 px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
               <p className="text-sm text-gray-700">
-                Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+                {t('dashboard.page_info', 'Page')} <strong>{page}</strong> {t('dashboard.of', 'of')} <strong>{totalPages}</strong>
               </p>
               <div className="flex gap-3">
                 <button
@@ -244,14 +242,14 @@ const Dashboard = () => {
                   disabled={page === 1}
                   className="px-4 py-2 border border-orange-300 text-orange-700 rounded-lg disabled:opacity-50 hover:bg-orange-50 text-sm"
                 >
-                  Previous
+                  {t('dashboard.previous', 'Previous')}
                 </button>
                 <button
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page === totalPages}
                   className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 text-sm"
                 >
-                  Next
+                  {t('dashboard.next', 'Next')}
                 </button>
               </div>
             </div>
@@ -268,16 +266,16 @@ const Dashboard = () => {
                 <Trash2 size={36} className="text-orange-600" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
-                Delete Ticket?
+                {t('dashboard.delete_ticket', 'Delete Ticket?')}
               </h3>
               <p className="text-gray-600 mt-3 text-sm sm:text-base">
-                You're about to delete ticket:
+                {t('dashboard.delete_confirmation', 'You\'re about to delete ticket:')}
               </p>
               <strong className="block text-orange-600 font-mono text-lg sm:text-2xl mt-2">
                 {deletingTicket.ticket_number}
               </strong>
               <p className="text-sm text-orange-600 font-semibold mt-3">
-                This action cannot be undone.
+                {t('dashboard.cannot_undone', 'This action cannot be undone.')}
               </p>
             </div>
 
@@ -287,7 +285,7 @@ const Dashboard = () => {
                 disabled={isDeleting}
                 className="px-6 py-3 border border-orange-300 text-orange-700 rounded-xl hover:bg-orange-50 font-medium"
               >
-                Cancel
+                {t('dashboard.cancel', 'Cancel')}
               </button>
               <button
                 onClick={confirmDelete}
@@ -295,7 +293,7 @@ const Dashboard = () => {
                 className="px-8 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 font-medium flex items-center justify-center gap-3 shadow-lg"
               >
                 {isDeleting && <Loader2 className="animate-spin" size={18} />}
-                {isDeleting ? "Deleting..." : "Yes, Delete"}
+                {isDeleting ? t('dashboard.deleting', 'Deleting...') : t('dashboard.yes_delete', 'Yes, Delete')}
               </button>
             </div>
           </div>
@@ -303,8 +301,6 @@ const Dashboard = () => {
       )}
       <Tickets/>
     </div>
-
-    
   );
 };
 

@@ -1,9 +1,8 @@
-// src/features/Profile/Profile.jsx
 import React, { useEffect, useState } from "react";
-import { getUser, updateProfilePicture } from "../http";
+import { getUser, updateProfilePicture } from "../../http";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { updateUser } from "../redux/slices/login";
+import { updateUser } from "../../redux/slices/login";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Building, MapPin, User, Mail, Phone } from "lucide-react";
@@ -23,7 +22,7 @@ const Profile = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // Load from localStorage on mount
+
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) {
@@ -33,13 +32,13 @@ const Profile = () => {
     }
   }, [dispatch]);
 
-  // Fetch fresh profile from API
+
   const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ["userProfile"],
     queryFn: getUser,
   });
 
-  // Sync API data → state + storage
+ 
   useEffect(() => {
     if (profile?.data?.user) {
       const user = profile.data.user;
@@ -50,7 +49,7 @@ const Profile = () => {
     }
   }, [profile, dispatch]);
 
-  // Photo Upload Mutation
+
   const updatePhotoMutation = useMutation({
     mutationFn: updateProfilePicture,
     onSuccess: (res) => {
@@ -178,7 +177,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Right: Info */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">

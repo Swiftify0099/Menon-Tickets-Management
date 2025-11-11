@@ -1,18 +1,37 @@
 // src/features/Navbar/Navbar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Lock, Home } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "./../redux/slices/login";
 import Logo from "../assets/menon-logo.png";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = ({ onToggleSidebar }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
 
-  // Single source of truth: Redux
   const currentUser = useSelector((state) => state.login.user);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (
+        (triggerRef.current && triggerRef.current.contains(e.target)) ||
+        (dropdownRef.current && dropdownRef.current.contains(e.target))
+      ) {
+        return;
+      }
+      setDropdownOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside, true);
+    return () => document.removeEventListener("mousedown", handleClickOutside, true);
+  }, [dropdownOpen]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -30,7 +49,7 @@ const Navbar = ({ onToggleSidebar }) => {
       className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex justify-between items-center shadow-sm"
       style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
     >
-      {/* Left - Logo + Title */}
+      {/* Left side - Logo and Title */}
       <div className="flex items-center gap-4">
         <img
           src={Logo}
@@ -42,66 +61,72 @@ const Navbar = ({ onToggleSidebar }) => {
         </h1>
       </div>
 
-      {/* Right - Profile */}
-      <div className="relative">
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100"
-        >
-          <div className="hidden sm:flex flex-col items-end text-sm leading-tight">
-            <span className="font-medium text-gray-800 capitalize tracking-wide">
-              {`${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() || "User"}
-            </span>
-            <span className="text-xs text-gray-500 font-light">
-              {currentUser?.role?.role_name || "User"}
-            </span>
-          </div>
-          <img
-            src={currentUser?.avatar || "/default-avatar.png"}
-            alt="Profile"
-            className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
-          />
-        </button>
+      {/* Right side - Language Switcher and Profile */}
+      <div className="flex items-center gap-4">
+        {/* Language Switcher */}
+        <div className="hidden sm:block">
+          <LanguageSwitcher />
+        </div>
 
-        {dropdownOpen && (
-          <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200"
-              onClick={() => setDropdownOpen(false)}
-            >
-              <User size={16} />
-              <span>Profile</span>
-            </Link>
+        {/* Mobile Language Switcher - if you want it to show on mobile too */}
+        {/* <div className="sm:hidden">
+          <LanguageSwitcher />
+        </div> */}
 
-            <button
-              onClick={() => {
-                setDropdownOpen(false);
-                navigate("/");
-              }}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
-            >
-              <Home size={16} />
-              <span>Home</span>
-            </button>
+        {/* Profile Dropdown */}
+        <div className="relative">
+          <button
+            ref={triggerRef}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100"
+          >
+            <div className="hidden sm:flex flex-col items-end text-sm leading-tight">
+              <span className="font-medium text-gray-800 capitalize tracking-wide">
+                {`${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() || "User"}
+              </span>
+              <span className="text-xs text-gray-500 font-light">
+                {currentUser?.role?.role_name || "User"}
+              </span>
+            </div>
+            <img
+              src={currentUser?.avatar || "/default-avatar.png"}
+              alt="Profile"
+              className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+            />
+          </button>
 
-            <button
-              onClick={handleChangePassword}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
+          {dropdownOpen && (
+            <div
+              ref={dropdownRef}
+              className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
             >
-              <Lock size={16} />
-              <span>Change Password</span>
-            </button>
+              <Link
+                to="/profile"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200"
+                onClick={() => setDropdownOpen(false)}
+              >
+                <User size={16} />
+                <span>Profile</span>
+              </Link>
 
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 w-full text-left mt-1 border-t border-gray-100 pt-2"
-            >
-              <LogOut size={16} />
-              <span>Logout</span>
-            </button>
-          </div>
-        )}
+              <button
+                onClick={handleChangePassword}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
+              >
+                <Lock size={16} />
+                <span>Change Password</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 w-full text-left mt-1 border-t border-gray-100 pt-2"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

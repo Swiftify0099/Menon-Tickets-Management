@@ -1,220 +1,219 @@
-import React, { useEffect, useState } from "react";
-import { getUser, updateUserProfile, updateProfilePicture } from "../http";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { updateUser } from "../redux/slices/login";
-import { ToastContainer, toast } from "react-toastify";
+import React from "react";
+import { useProfile } from "../hooks/UseProfile";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Building, MapPin, User, Mail, Phone, Home, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
-  const dispatch = useDispatch();
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    phone: "",
-    avatar: "",
-  });
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  // ✅ Load user from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        setFormData(userData);
-        dispatch(updateUser(userData));
-      }
-    } catch (error) {
-      console.error("Error loading user data:", error);
-    }
-  }, [dispatch]);
-
-  // ✅ Fetch user profile from API
+  const { t } = useTranslation();
   const {
-    data: profile,
+    formData,
+    selectedFile,
     isLoading,
     isError,
-    refetch,
-  } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: getUser,
-  });
+    updatePhotoMutation,
+    handleFileChange,
+    handlePhotoUpload,
+  } = useProfile();
 
-  // ✅ Mutation - update profile info
-  const updateProfileMutation = useMutation({
-    mutationFn: updateUserProfile,
-    onSuccess: (res) => {
-      const updatedUser = res?.data?.user || formData;
-      toast.success("Profile info updated successfully!");
-      syncUser(updatedUser);
-      refetch();
-    },
-    onError: (err) => {
-      console.error("Update failed:", err);
-      toast.error("Failed to update profile!");
-    },
-  });
 
-  // ✅ Mutation - update profile photo
-  const updatePhotoMutation = useMutation({
-    mutationFn: updateProfilePicture,
-    onSuccess: (res) => {
-      let updatedUser = formData;
-      if (res?.data?.user) {
-        updatedUser = res.data.user;
-      } else if (res?.data?.avatar) {
-        updatedUser = { ...formData, avatar: res.data.avatar };
-      }
-      toast.success("Profile photo updated successfully!");
-      syncUser(updatedUser);
-      setSelectedFile(null);
-      refetch();
-    },
-    onError: (err) => {
-      console.error("Photo upload failed:", err);
-      toast.error("Failed to update photo!");
-    },
-  });
 
-  // ✅ Sync with Redux + localStorage
-  const syncUser = (user) => {
-    setFormData(user);
-    localStorage.setItem("user", JSON.stringify(user));
-    dispatch(updateUser(user));
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
 
-  // ✅ When fetched from server, sync to state
-  useEffect(() => {
-    if (profile?.data?.user) syncUser(profile.data.user);
-  }, [profile]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setSelectedFile(file);
-  };
-
-  const handleProfileUpdate = () => {
-    updateProfileMutation.mutate({
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      phone: formData.phone,
-    });
-  };
-
-  const handlePhotoUpload = () => {
-    if (!selectedFile) {
-      toast.warn("Please select a photo first!");
-      return;
-    }
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error("File too large! Please select an image under 5MB.");
-      return;
-    }
-
-    updatePhotoMutation.mutate({ profile_photo: selectedFile });
-  };
-
-  if (isLoading) return <p>Loading profile...</p>;
-  if (isError) return <p className="text-red-500">Failed to load profile.</p>;
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <p className="text-red-500 text-lg">{t('common.error')}</p>
+      </div>
+    );
+  }
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-3 px-4">
+      <ToastContainer position="top-right" autoClose={2500} />
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>
+      <div className="max-w-4xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+          <Link 
+            to="/" 
+            className="flex items-center gap-1 text-orange-600 hover:text-orange-700 transition-colors"
+          >
+            <Home size={16} />
+            <span>{t('common.home')}</span>
+          </Link>
+          <ChevronRight size={16} className="text-gray-400" />
+          <span className="text-gray-800 font-medium">{t('profile.my_profile')}</span>
+        </nav>
 
-      {/* ✅ Profile Photo */}
-      <div className="flex flex-col items-center space-y-3">
-        <img
-          src={
-            selectedFile
-              ? URL.createObjectURL(selectedFile)
-              : formData.avatar || "/default-avatar.png"
-          }
-          alt="Profile"
-          className="w-24 h-24 rounded-full object-cover border"
-        />
-
-        <label className="cursor-pointer bg-gray-100 px-3 py-1 text-sm rounded-md hover:bg-gray-200">
-          Change Photo
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </label>
-
-        <button
-          onClick={handlePhotoUpload}
-          disabled={updatePhotoMutation.isPending}
-          className="bg-orange-500 hover:bg-orange-600 text-white py-1 px-4 rounded-md text-sm"
-        >
-          {updatePhotoMutation.isPending ? "Uploading..." : "Upload Photo"}
-        </button>
-      </div>
-
-      <div className="space-y-3 mt-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name
-          </label>
-          <input
-            name="first_name"
-            value={formData.first_name || ""}
-            onChange={handleChange}
-            className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-          />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">{t('profile.my_profile')}</h1>
+          <p className="text-gray-600 mt-2">{t('profile.view_account_info')}</p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name
-          </label>
-          <input
-            name="last_name"
-            value={formData.last_name || ""}
-            onChange={handleChange}
-            className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-          />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: Avatar Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8 text-center">
+                <div className="relative inline-block">
+                  <img
+                    src={
+                      selectedFile
+                        ? URL.createObjectURL(selectedFile)
+                        : formData.avatar || "/default-avatar.png"
+                    }
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mx-auto"
+                  />
+                  {updatePhotoMutation.isPending && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    </div>
+                  )}
+                </div>
+                <h2 className="text-xl font-bold text-white mt-4">
+                  {formData.first_name} {formData.last_name}
+                </h2>
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20 text-black mt-2">
+                  <User size={14} className="mr-1" />
+                  {formData.role?.role_name || t('profile.user')}
+                </div>
+              </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            value={formData.email || ""}
-            disabled
-            className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-100"
-          />
-        </div>
+              <div className="p-6 space-y-4">
+                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors w-full text-center block">
+                  {t('profile.change_photo')}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone
-          </label>
-          <input
-            name="phone"
-            value={formData.phone || ""}
-            onChange={handleChange}
-            className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-          />
-        </div>
+                <button
+                  onClick={handlePhotoUpload}
+                  disabled={updatePhotoMutation.isPending || !selectedFile}
+                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors w-full"
+                >
+                  {updatePhotoMutation.isPending ? t('profile.uploading') : t('profile.upload_photo')}
+                </button>
+              </div>
+            </div>
+          </div>
 
-        <button
-          onClick={handleProfileUpdate}
-          disabled={updateProfileMutation.isPending}
-          className="bg-orange-500 hover:bg-orange-600 text-white py-1 px-4 rounded-md text-sm"
-        >
-          {updateProfileMutation.isPending ? "Updating..." : "Update Profile"}
-        </button>
+          {/* Right: Profile Info */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+                <h2 className="text-xl font-bold text-white">{t('profile.profile_information')}</h2>
+                <p className="text-orange-100 text-sm mt-1">{t('profile.personal_details')}</p>
+              </div>
+
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-6">
+                  
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.first_name')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
+                        {formData.first_name}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.last_name')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
+                        {formData.last_name}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.email')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <Mail size={16} className="mr-2 text-orange-500" />
+                        {formData.email}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.phone')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <Phone size={16} className="mr-2 text-orange-500" />
+                        {formData.phone || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                 
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.role')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <User size={16} className="mr-2 text-orange-500" />
+                        {formData.role?.role_name || t('profile.user')}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.department')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <Building size={16} className="mr-2 text-orange-500" />
+                        {formData.department?.department_name || "—"}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.division')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800 flex items-center">
+                        <MapPin size={16} className="mr-2 text-orange-500" />
+                        {formData.division?.division_name || "—"}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500">
+                        {t('profile.user_id')}
+                      </label>
+                      <div className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-800">
+                        {formData.id}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-// src/pages/ForgotPassword.jsx
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
@@ -13,17 +13,17 @@ const ForgotPassword = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: forgotPassword,
     onSuccess: (res) => {
-      toast.success("✅ Password reset link sent to your email!");
+      toast.success(" Password reset link sent to your email!");
 
-      // 🧠 If backend response includes token or link, open it directly
+ 
       if (res?.link) {
-        // Optional: redirect user to reset page automatically
+       
         const token = new URL(res.link).searchParams.get("token");
         navigate(`/reset-password?token=${token}`);
       }
     },
     onError: (err) => {
-      toast.error("❌ Failed to send reset link!");
+      toast.error(" Failed to send reset link!");
       console.error("Reset Password Error:", err);
     },
   });

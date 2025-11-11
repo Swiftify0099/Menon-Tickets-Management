@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteTicket, loadTickets } from "../redux/slices/ticketsSlice";
+import { deleteTicket, loadTickets } from "../../redux/slices/ticketsSlice";
 import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {

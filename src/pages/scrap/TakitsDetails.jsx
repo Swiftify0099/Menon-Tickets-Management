@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { markComplete, reopenTicket, updateTicket } from "../redux/slices/ticketsSlice";
+import { markComplete, reopenTicket, updateTicket } from "../../redux/slices/ticketsSlice";
 
 const TicketDetails = () => {
   const { id } = useParams();

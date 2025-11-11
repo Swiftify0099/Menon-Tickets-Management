@@ -1,65 +1,62 @@
-// src/pages/ResetPassword.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useMutation } from "@tanstack/react-query";
-import { verifyResetToken, resetPassword } from "../../../http";
+import { resetPassword } from "../../../http";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
   const token = searchParams.get("token");
+  console.log("Token from URL:", token);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [tokenVerified, setTokenVerified] = useState(false);
 
-  // ✅ Verify token automatically
-  const verifyMutation = useMutation({
-    mutationFn: verifyResetToken,
-    onSuccess: () => {
-      setTokenVerified(true);
-      toast.success("✅ Token verified. You can reset your password.");
-    },
-    onError: () => {
-      toast.error("❌ Invalid or expired token.");
-      navigate("/forgot-password");
-    },
-  });
-
-  // ✅ Verify token on load
-  useEffect(() => {
-    if (token) {
-      verifyMutation.mutate(token);
-    } else {
-      toast.error("Invalid reset link.");
-      navigate("/forgot-password");
-    }
-  }, [token]);
-
-  // ✅ Update password
+  // ✅ Reset password mutation
   const updateMutation = useMutation({
     mutationFn: resetPassword,
-    onSuccess: () => {
-      toast.success("✅ Password updated successfully!");
+    onSuccess: (res) => {
+      toast.success(res.message || "✅ Password updated successfully!");
       navigate("/login");
     },
     onError: (err) => {
       console.error("Password update failed:", err);
-      toast.error("❌ Failed to update password.");
+      console.error("Error response:", err.response);
+      
+      if (err.response?.status === 401 || err.response?.status === 400) {
+        toast.error("❌ Invalid or expired reset token.");
+      } else if (err.response?.data?.message) {
+        toast.error( `${err.response.data.message}`);
+      } else {
+        toast.error("❌ Failed to update password. Please try again.");
+      }
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!token) {
+      toast.error("❌ Invalid reset link. Please request a new one.");
+      return;
+    }
+
     if (!password || !confirmPassword) {
-      toast.warn("Please fill all fields.");
+      toast.warn("⚠️ Please fill all fields.");
       return;
     }
     if (password !== confirmPassword) {
-      toast.warn("Passwords do not match.");
+      toast.warn("⚠️ Passwords do not match.");
       return;
     }
+
+    console.log("Sending reset request with:", {
+      reset_token: token,
+      password,
+      password_confirmation: confirmPassword
+    });
 
     updateMutation.mutate({
       reset_token: token,
@@ -68,25 +65,28 @@ const ResetPassword = () => {
     });
   };
 
-  if (verifyMutation.isPending) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600">Verifying token...</p>
-      </div>
-    );
-  }
-
-  if (!tokenVerified) return null;
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md border border-gray-200">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md border">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
           Reset Password
         </h2>
-        <p className="text-center text-gray-600 text-sm mb-6">
-          Enter your new password below.
-        </p>
+        
+        {/* Debug info */}
+
+        {!token && (
+          <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-sm text-red-700">
+              ❌ No reset token found in URL
+            </p>
+            <Link 
+              to="/forgot-password" 
+              className="text-blue-500 hover:underline text-sm"
+            >
+              Request new reset link
+            </Link>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -99,6 +99,7 @@ const ResetPassword = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             />
           </div>
@@ -119,8 +120,8 @@ const ResetPassword = () => {
 
           <button
             type="submit"
-            disabled={updateMutation.isPending}
-            className="w-full bg-orange-500 text-white py-2 rounded-lg mt-4 hover:bg-orange-600 transition duration-200 font-semibold"
+            disabled={updateMutation.isPending || !token}
+            className="w-full bg-orange-500 text-white py-2 rounded-lg mt-4 hover:bg-orange-600 transition duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updateMutation.isPending ? "Updating..." : "Update Password"}
           </button>

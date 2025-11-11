@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { forgotPassword } from "../http"; // ✅ correct import
+import { forgotPassword } from "../../http"; // ✅ correct import
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

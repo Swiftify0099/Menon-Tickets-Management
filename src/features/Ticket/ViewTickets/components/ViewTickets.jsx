@@ -1,6 +1,6 @@
 // src/pages/ViewTicket.jsx
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Download,
@@ -18,134 +18,32 @@ import {
   CheckCircle,
   RotateCcw,
 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { http } from "../../../../http";
+import { useViewTicket } from "../hooks/UseViewTicket";
 
 const ViewTicket = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [currentDocument, setCurrentDocument] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchTicket = async () => {
-      try {
-        setLoading(true);
-        const response = await http.get(`ticket/show/${id}`);
-
-        if (response.data.status === 200) {
-          setTicket(response.data.data);
-        } else {
-          setError("Failed to fetch ticket details");
-          toast.error("Failed to load ticket details");
-        }
-      } catch (err) {
-        setError("Error fetching ticket details");
-        console.error(err);
-        toast.error("Error loading ticket details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) fetchTicket();
-  }, [id]);
-
-  /* ---------- File Helpers ---------- */
-  const getFileIcon = (url) => {
-    const ext = url.split(".").pop().toLowerCase();
-    if (["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(ext))
-      return <Image className="w-5 h-5 text-blue-600" />;
-    if (["pdf"].includes(ext)) return <FileText className="w-5 h-5 text-red-600" />;
-    if (["doc", "docx"].includes(ext)) return <FileText className="w-5 h-5 text-blue-600" />;
-    return <File className="w-5 h-5 text-gray-600" />;
-  };
-
-  const isImageFile = (filename) => {
-    const exts = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
-    return exts.includes(filename.split(".").pop().toLowerCase());
-  };
-
-  const isPdfFile = (filename) => filename.toLowerCase().endsWith(".pdf");
-
-  const getFileType = (filename) => {
-    if (isImageFile(filename)) return "Image";
-    if (isPdfFile(filename)) return "PDF";
-    if (filename.toLowerCase().endsWith(".doc") || filename.toLowerCase().endsWith(".docx"))
-      return "Word Document";
-    return "File";
-  };
-
-  const openDocumentViewer = (doc, idx) => {
-    setCurrentDocument(doc);
-    setCurrentIndex(idx);
-    setViewerOpen(true);
-  };
-
-  const closeDocumentViewer = () => {
-    setViewerOpen(false);
-    setCurrentDocument(null);
-    setCurrentIndex(0);
-  };
-
-  const navigateDocument = (dir) => {
-    if (!ticket?.documents) return;
-    const newIdx =
-      dir === "next"
-        ? (currentIndex + 1) % ticket.documents.length
-        : (currentIndex - 1 + ticket.documents.length) % ticket.documents.length;
-    setCurrentIndex(newIdx);
-    setCurrentDocument(ticket.documents[newIdx]);
-  };
-
-  const downloadFile = async (url, filename) => {
-    try {
-      if (url.startsWith("http")) {
-        window.open(url, "_blank");
-        toast.info("Opening document...");
-        return;
-      }
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(link.href);
-      toast.success("Download started");
-    } catch (err) {
-      window.open(url, "_blank");
-      toast.info("Opening in new tab...");
-    }
-  };
-
-  const getStatusColor = (status) => {
-    const s = status?.toLowerCase();
-    if (["completed", "resolved"].includes(s)) return "bg-green-100 text-green-800 border border-green-200";
-    if (["in-progress", "in_progress", "processing"].includes(s))
-      return "bg-blue-100 text-blue-800 border border-blue-200";
-    if (["pending", "open"].includes(s)) return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-    if (["cancelled", "closed"].includes(s)) return "bg-red-100 text-red-800 border border-red-200";
-    return "bg-gray-100 text-gray-800 border border-gray-200";
-  };
-
-  const formatStatusText = (status) => {
-    const map = {
-      pending: "Pending",
-      "in-progress": "In Progress",
-      in_progress: "In Progress",
-      completed: "Completed",
-      resolved: "Resolved",
-      cancelled: "Cancelled",
-      closed: "Closed",
-    };
-    return map[status?.toLowerCase()] || status || "Unknown";
-  };
+  const {
+    ticket,
+    loading,
+    error,
+    viewerOpen,
+    currentDocument,
+    currentIndex,
+    openDocumentViewer,
+    closeDocumentViewer,
+    navigateDocument,
+    downloadFile,
+    handleMarkAsCompleted,
+    handleReopenTicket,
+    getFileIcon,
+    isImageFile,
+    isPdfFile,
+    getFileType,
+    getStatusColor,
+    formatStatusText,
+  } = useViewTicket();
 
   if (loading) {
     return (
@@ -201,7 +99,7 @@ const ViewTicket = () => {
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold">{ticket.ticket_number || `TICKET-${id}`}</h2>
+                <h2 className="text-2xl font-bold">{ticket.ticket_number || `TICKET-${ticket.id}`}</h2>
                 <p className="text-orange-100 mt-1">
                   Created on{" "}
                   {new Date(ticket.created_at).toLocaleDateString("en-US", {
@@ -283,6 +181,8 @@ const ViewTicket = () => {
               </div>
             </div>
 
+            
+
             {/* Documents */}
             {ticket.documents && ticket.documents.length > 0 ? (
               <div>
@@ -299,7 +199,12 @@ const ViewTicket = () => {
                       className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0">{getFileIcon(doc.document_url)}</div>
+                        <div className="flex-shrink-0">
+                          {getFileIcon(doc.document_url) === "image" ? <Image className="w-5 h-5 text-blue-600" /> :
+                           getFileIcon(doc.document_url) === "pdf" ? <FileText className="w-5 h-5 text-red-600" /> :
+                           getFileIcon(doc.document_url) === "word" ? <FileText className="w-5 h-5 text-blue-600" /> :
+                           <File className="w-5 h-5 text-gray-600" />}
+                        </div>
                         <div className="min-w-0 flex-1">
                           <p className="font-medium text-gray-800 truncate">
                             {doc.document_url.split("/").pop()}
@@ -312,13 +217,20 @@ const ViewTicket = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
+
+
+                        
+                        {/* <button
                           onClick={() => openDocumentViewer(doc, idx)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View"
                         >
                           <Eye size={18} />
-                        </button>
+                        </button> */}
+
+
+
+
                         <button
                           onClick={() => downloadFile(doc.document_url, doc.document_url.split("/").pop())}
                           className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -340,29 +252,26 @@ const ViewTicket = () => {
             )}
           </div>
 
-          {/* === TWO STATIC BUTTONS (using div) === */}
+          {/* Action Buttons */}
           <div className="p-6 border-t border-gray-200 bg-gray-50">
             <div className="flex justify-end gap-4">
-              {/* Mark as Completed */}
               <div
+                onClick={handleMarkAsCompleted}
                 className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700"
-                onClick={() => toast.info("Mark as Completed clicked (static)")}
               >
                 <CheckCircle size={18} />
                 <span>Mark as Completed</span>
               </div>
 
-              {/* Reopen Ticket */}
               <div
+                onClick={handleReopenTicket}
                 className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700"
-                onClick={() => toast.info("Reopen Ticket clicked (static)")}
               >
                 <RotateCcw size={18} />
                 <span>Reopen Ticket</span>
               </div>
             </div>
           </div>
-          {/* === END OF BUTTONS === */}
         </div>
       </div>
 
@@ -372,7 +281,9 @@ const ViewTicket = () => {
           <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-4 flex-1 min-w-0">
-                {getFileIcon(currentDocument.document_url)}
+                {getFileIcon(currentDocument.document_url) === "image" ? <Image className="w-5 h-5 text-blue-600" /> :
+                 getFileIcon(currentDocument.document_url) === "pdf" ? <FileText className="w-5 h-5 text-red-600" /> :
+                 <File className="w-5 h-5 text-gray-600" />}
                 <div className="min-w-0 flex-1">
                   <h3 className="text-lg font-semibold text-gray-800 truncate">
                     {currentDocument.document_url.split("/").pop()}
@@ -385,18 +296,10 @@ const ViewTicket = () => {
               <div className="flex items-center gap-2">
                 {ticket.documents.length > 1 && (
                   <>
-                    <button
-                      onClick={() => navigateDocument("prev")}
-                      className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="Previous"
-                    >
+                    <button onClick={() => navigateDocument("prev")} className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg" title="Previous">
                       <ChevronLeft size={20} />
                     </button>
-                    <button
-                      onClick={() => navigateDocument("next")}
-                      className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="Next"
-                    >
+                    <button onClick={() => navigateDocument("next")} className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg" title="Next">
                       <ChevronRight size={20} />
                     </button>
                   </>
@@ -408,11 +311,7 @@ const ViewTicket = () => {
                 >
                   <Download size={20} />
                 </button>
-                <button
-                  onClick={closeDocumentViewer}
-                  className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                  title="Close"
-                >
+                <button onClick={closeDocumentViewer} className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg" title="Close">
                   <X size={20} />
                 </button>
               </div>
@@ -450,9 +349,7 @@ const ViewTicket = () => {
             <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span className="font-medium">{getFileType(currentDocument.document_url)}</span>
-                <span>
-                  {currentIndex + 1} of {ticket.documents.length}
-                </span>
+                <span>{currentIndex + 1} of {ticket.documents.length}</span>
               </div>
             </div>
           </div>

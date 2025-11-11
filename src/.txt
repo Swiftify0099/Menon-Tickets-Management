@@ -1,0 +1,14 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from './components/LanguageSwitcher';
+
+// Import translation files
+import commonEN from './locales/english/common.json';
+import ticketsEN from './locales/english/tickets.json';
+import profileEN from './locales/english/profile.json';
+import authEN from './locales/english/auth.json';
+
+import commonMR from './locales/marathi/common.json';
+import ticketsMR from './locales/marathi/tickets.json';
+import profileMR from './locales/marathi/profile.json';
+import authMR from './locales/marathi/auth.json';

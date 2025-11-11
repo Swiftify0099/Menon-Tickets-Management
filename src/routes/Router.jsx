@@ -1,15 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "../Layouts/Layouts";
 import NewTakits from "../features/Ticket/TicketCreate/components/TicketCreate";
-import TakitsDetails from "../pages/TakitsDetails";
 import Tickets from "../features/Ticket/AllTickets/components/Tickets";
-import Settings from "../pages/Settings";
-import Profile from "../pages/Profile";
+import Profile from "../features/Profile/components/Profile";
 import ErrorBoundary from "../components/ErrorBoundary";
 import Login from "../features/Login/components/Login";
 import ForgotPassword from "../features/Login/components/ForgotPassword";
 import ResetPassword from "../features/Login/components/ResetPassword";
-import ChangePassword from "../pages/scrap/ChangePassword";
+import ChangePassword from "../features/Profile/components/ChangePassword";
 import ViewTicket from "../features/Ticket/ViewTickets/components/ViewTickets";
 import UpdateTicket from "../features/Ticket/UpdateTicket/components/UpdateTicket";
 import Dashboard from "../features/dashboard/components/Dashboard";
@@ -22,13 +20,9 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { index: true, element: <Tickets /> },
       { path: "new-takits", element: <NewTakits /> },
-      { path: "takits-details/:id", element: <TakitsDetails /> },
-      { path: "settings", element: <Settings /> },
       { path: "/ticket/:id", element: <ViewTicket /> },
       { path: "/update-ticket/:id", element: <UpdateTicket /> },
       { path: "/change-password", element: <ChangePassword /> },
-
-
       {
         path: "profile",
         element: (
@@ -42,7 +36,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/reset-password", element: <ResetPassword /> },
- 
+
 
   {
     path: "*",

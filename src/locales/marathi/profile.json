@@ -1,0 +1,18 @@
+{
+  "my_profile": "माझे प्रोफाइल",
+  "profile_information": "प्रोफाइल माहिती",
+  "personal_details": "वैयक्तिक तपशील",
+  "organizational_info": "संस्थात्मक माहिती",
+  "first_name": "पहिले नाव",
+  "last_name": "आडनाव",
+  "email": "ईमेल पत्ता",
+  "phone": "फोन नंबर",
+  "role": "भूमिका",
+  "department": "विभाग",
+  "division": "विभागणी",
+  "user_id": "यूजर आयडी",
+  "change_photo": "फोटो बदला",
+  "upload_photo": "फोटो अपलोड करा",
+  "uploading": "अपलोड होत आहे...",
+  "user": "यूजर"
+}

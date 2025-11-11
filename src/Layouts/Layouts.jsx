@@ -4,6 +4,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
+
 const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const token = localStorage.getItem("token");
@@ -18,7 +19,7 @@ const AppLayout = () => {
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       
       <div className="flex flex-1">
-  
+     
         
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
           <Outlet />

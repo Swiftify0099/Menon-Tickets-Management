@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Upload, X, ArrowLeft, CheckCircle } from "lucide-react";
-import { http, ServiceProvider, services, createTicket } from "../http";
+import { http, ServiceProvider, services, createTicket } from "../../http";
 
 const TicketCreate = () => {
   const navigate = useNavigate();

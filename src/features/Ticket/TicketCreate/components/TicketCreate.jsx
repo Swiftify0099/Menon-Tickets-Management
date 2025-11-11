@@ -1,6 +1,6 @@
-// src/pages/TicketCreate.jsx
+
 import React, { useState, useMemo } from "react";
-import  { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Loader2,
   Upload,
@@ -12,8 +12,8 @@ import {
   File,
 } from "lucide-react";
 import Select from "react-select";
-import { toast, ToastContainer } from "react-toastify"; // Import toast + container
-import "react-toastify/dist/ReactToastify.css"; // Import CSS
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useProviders } from "../hooks/UseProviders";
 import { useServices } from "../hooks/UseServices";
 import { useTicketCreate } from "../hooks/UseTicketCreate";
@@ -33,7 +33,6 @@ const TicketCreate = () => {
   const { loading, success, ticketNumber, submit } = useTicketCreate();
   const { documents, previewFiles, addFiles, removeFile } = useFileUpload();
 
-  /* ---------- React-Select Options ---------- */
   const providerOptions = useMemo(
     () =>
       providers.map((p) => ({
@@ -71,7 +70,6 @@ const TicketCreate = () => {
     setForm((prev) => ({ ...prev, ticket_details: e.target.value }));
   };
 
-  /* ---------- Submit ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,7 +104,6 @@ const TicketCreate = () => {
       stored.unshift(newTicket);
       localStorage.setItem("dashboard-tickets", JSON.stringify(stored));
 
-      // Show success toast with ticket number
       toast.success(
         <div>
           <p className="font-semibold">Ticket Created Successfully!</p>
@@ -129,12 +126,12 @@ const TicketCreate = () => {
         }
       );
 
-      // Redirect after toast
+
       setTimeout(() => navigate("/"), 2500);
     });
   };
 
-  /* ---------- File Icon Helper ---------- */
+
   const getFileIcon = (name) => {
     const ext = name.split(".").pop().toLowerCase();
     if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext))
@@ -143,7 +140,7 @@ const TicketCreate = () => {
     return <File className="w-4 h-4 text-gray-600" />;
   };
 
-  /* ---------- React-Select Styles ---------- */
+
   const selectStyles = {
     control: (base) => ({
       ...base,
