@@ -175,291 +175,325 @@ const ViewTicket = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 sm:px-6">
-      <ToastContainer position="top-right" autoClose={4000} theme="light" />
+  <div className="min-h-screen bg-gray-50 px-4 sm:px-6">
+  <ToastContainer position="top-right" autoClose={4000} theme="light" />
 
-      <div className="max-w-8xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/")}
-              className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-orange-300"
-            >
-              <ArrowLeft size={20} className="text-gray-700" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Ticket Details</h1>
-              <p className="text-gray-600 text-sm mt-1">View complete ticket information</p>
-            </div>
-          </div>
+  <div className="max-w-8xl mx-auto">
+    {/* Header */}
+    <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => navigate("/")}
+          className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-orange-300"
+        >
+          <ArrowLeft size={20} className="text-gray-700" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Ticket Details / तिकिट तपशील
+          </h1>
+          <p className="text-gray-600 text-sm mt-1">
+            View complete ticket information / संपूर्ण तिकीट माहिती पहा
+          </p>
         </div>
+      </div>
+    </div>
 
-        {/* Main Card */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-bold">{ticket.ticket_number || `TICKET-${id}`}</h2>
-                <p className="text-orange-100 mt-1">
-                  Created on{" "}
-                  {new Date(ticket.created_at).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(
-                    ticket.status
-                  )}`}
-                >
-                  {formatStatusText(ticket.status)}
-                </span>
-              </div>
-            </div>
+    {/* Main Card */}
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">
+              {ticket.ticket_number || `TICKET-${id}`}
+            </h2>
+            <p className="text-orange-100 mt-1">
+              Created on / तयार केले दिनांक{" "}
+              {new Date(ticket.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
           </div>
-
-          {/* Content */}
-          <div className="p-6 space-y-6">
-            {/* Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <Tag className="w-5 h-5 text-orange-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Service</p>
-                  <p className="font-semibold text-gray-800 truncate">{ticket.service_name || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <User className="w-5 h-5 text-orange-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Provider</p>
-                  <p className="font-semibold text-gray-800 truncate">{ticket.provider_name || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <Calendar className="w-5 h-5 text-orange-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Created Date</p>
-                  <p className="font-semibold text-gray-800">
-                    {new Date(ticket.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <Calendar className="w-5 h-5 text-orange-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Last Updated</p>
-                  <p className="font-semibold text-gray-800">
-                    {new Date(ticket.updated_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {ticket.ticket_details || "No description provided."}
-                </p>
-              </div>
-            </div>
-
-            {/* Documents */}
-            {ticket.documents && ticket.documents.length > 0 ? (
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-800">Attached Documents</h3>
-                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {ticket.documents.length} document(s)
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {ticket.documents.map((doc, idx) => (
-                    <div
-                      key={doc.document_id}
-                      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0">{getFileIcon(doc.document_url)}</div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-gray-800 truncate">
-                            {doc.document_url.split("/").pop()}
-                          </p>
-                          <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                            <span>{getFileType(doc.document_url)}</span>
-                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                            <span>Document {idx + 1}</span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => openDocumentViewer(doc, idx)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        <button
-                          onClick={() => downloadFile(doc.document_url, doc.document_url.split("/").pop())}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                          title="Download"
-                        >
-                          <Download size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                <p className="text-gray-500 text-lg font-medium">No documents attached</p>
-                <p className="text-gray-400 text-sm mt-1">There are no documents attached to this ticket</p>
-              </div>
-            )}
+          <div className="flex items-center gap-3">
+            <span
+              className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(
+                ticket.status
+              )}`}
+            >
+              {formatStatusText(ticket.status)}
+            </span>
           </div>
-
-          {/* === TWO STATIC BUTTONS (using div) === */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
-            <div className="flex justify-end gap-4">
-              {/* Mark as Completed */}
-              <div
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700"
-                onClick={() => toast.info("Mark as Completed clicked (static)")}
-              >
-                <CheckCircle size={18} />
-                <span>Mark as Completed</span>
-              </div>
-
-              {/* Reopen Ticket */}
-              <div
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700"
-                onClick={() => toast.info("Reopen Ticket clicked (static)")}
-              >
-                <RotateCcw size={18} />
-                <span>Reopen Ticket</span>
-              </div>
-            </div>
-          </div>
-          {/* === END OF BUTTONS === */}
         </div>
       </div>
 
-      {/* Document Viewer Modal */}
-      {viewerOpen && currentDocument && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center gap-4 flex-1 min-w-0">
-                {getFileIcon(currentDocument.document_url)}
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 truncate">
-                    {currentDocument.document_url.split("/").pop()}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {currentIndex + 1} of {ticket.documents.length} • {getFileType(currentDocument.document_url)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {ticket.documents.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => navigateDocument("prev")}
-                      className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="Previous"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <button
-                      onClick={() => navigateDocument("next")}
-                      className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="Next"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={() => downloadFile(currentDocument.document_url, currentDocument.document_url.split("/").pop())}
-                  className="p-3 text-green-600 hover:bg-green-50 rounded-lg"
-                  title="Download"
-                >
-                  <Download size={20} />
-                </button>
-                <button
-                  onClick={closeDocumentViewer}
-                  className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                  title="Close"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+      {/* Content */}
+      <div className="p-6 space-y-6">
+        {/* Info Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <Tag className="w-5 h-5 text-orange-500" />
+            <div>
+              <p className="text-sm text-gray-600">Service / सेवा</p>
+              <p className="font-semibold text-gray-800 truncate">
+                {ticket.service_name || "N/A"}
+              </p>
             </div>
-
-            <div className="flex-1 p-4 overflow-auto bg-gray-900 flex items-center justify-center">
-              {isImageFile(currentDocument.document_url) ? (
-                <img
-                  src={currentDocument.document_url}
-                  alt="Preview"
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => (e.target.style.display = "none")}
-                />
-              ) : isPdfFile(currentDocument.document_url) ? (
-                <iframe
-                  src={currentDocument.document_url}
-                  className="w-full h-full border-0 bg-white"
-                  title="PDF"
-                />
-              ) : (
-                <div className="text-center p-8 bg-white rounded-lg max-w-md">
-                  <FileText size={64} className="mx-auto text-gray-400 mb-4" />
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Preview Not Available</h4>
-                  <p className="text-gray-600 mb-4">Download to view this file.</p>
-                  <button
-                    onClick={() => downloadFile(currentDocument.document_url, currentDocument.document_url.split("/").pop())}
-                    className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2 mx-auto"
-                  >
-                    <Download size={18} /> Download
-                  </button>
-                </div>
-              )}
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <User className="w-5 h-5 text-orange-500" />
+            <div>
+              <p className="text-sm text-gray-600">Provider / प्रदाता</p>
+              <p className="font-semibold text-gray-800 truncate">
+                {ticket.provider_name || "N/A"}
+              </p>
             </div>
-
-            <div className="p-4 border-t border-gray-200 bg-white">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span className="font-medium">{getFileType(currentDocument.document_url)}</span>
-                <span>
-                  {currentIndex + 1} of {ticket.documents.length}
-                </span>
-              </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <Calendar className="w-5 h-5 text-orange-500" />
+            <div>
+              <p className="text-sm text-gray-600">Created Date / तयार केलेली तारीख</p>
+              <p className="font-semibold text-gray-800">
+                {new Date(ticket.created_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <Calendar className="w-5 h-5 text-orange-500" />
+            <div>
+              <p className="text-sm text-gray-600">Last Updated / शेवटचे अद्यतन</p>
+              <p className="font-semibold text-gray-800">
+                {new Date(ticket.updated_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Description */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            Description / वर्णन
+          </h3>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {ticket.ticket_details || "No description provided. / वर्णन उपलब्ध नाही."}
+            </p>
+          </div>
+        </div>
+
+        {/* Documents */}
+        {ticket.documents && ticket.documents.length > 0 ? (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Attached Documents / जोडलेली कागदपत्रे
+              </h3>
+              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                {ticket.documents.length} document(s) / कागदपत्रे
+              </span>
+            </div>
+            <div className="space-y-3">
+              {ticket.documents.map((doc, idx) => (
+                <div
+                  key={doc.document_id}
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex-shrink-0">{getFileIcon(doc.document_url)}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-800 truncate">
+                        {doc.document_url.split("/").pop()}
+                      </p>
+                      <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                        <span>{getFileType(doc.document_url)}</span>
+                        <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                        <span>Document / कागदपत्र {idx + 1}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openDocumentViewer(doc, idx)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="View / पहा"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        downloadFile(doc.document_url, doc.document_url.split("/").pop())
+                      }
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Download / डाउनलोड करा"
+                    >
+                      <Download size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+            <FileText className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+            <p className="text-gray-500 text-lg font-medium">
+              No documents attached / कोणतीही कागदपत्रे जोडलेली नाहीत
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              There are no documents attached to this ticket / या तिकिटाशी कोणतीही कागदपत्रे जोडलेली नाहीत
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* === TWO STATIC BUTTONS === */}
+      <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-end gap-4">
+          <div
+            className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700"
+            onClick={() => toast.info("Mark as Completed clicked (static) / पूर्ण झाले म्हणून चिन्हांकित केले")}
+          >
+            <CheckCircle size={18} />
+            <span>Mark as Completed / पूर्ण झाले म्हणून चिन्हांकित करा</span>
+          </div>
+
+          <div
+            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700"
+            onClick={() => toast.info("Reopen Ticket clicked (static) / तिकीट पुन्हा उघडले")}
+          >
+            <RotateCcw size={18} />
+            <span>Reopen Ticket / तिकीट पुन्हा उघडा</span>
+          </div>
+        </div>
+      </div>
+      {/* === END OF BUTTONS === */}
     </div>
-  );
+  </div>
+
+  {/* Document Viewer Modal */}
+  {viewerOpen && currentDocument && (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {getFileIcon(currentDocument.document_url)}
+            <div className="min-w-0 flex-1">
+              <h3 className="text-lg font-semibold text-gray-800 truncate">
+                {currentDocument.document_url.split("/").pop()}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {currentIndex + 1} of {ticket.documents.length} • {getFileType(currentDocument.document_url)}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {ticket.documents.length > 1 && (
+              <>
+                <button
+                  onClick={() => navigateDocument("prev")}
+                  className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
+                  title="Previous / मागील"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => navigateDocument("next")}
+                  className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
+                  title="Next / पुढील"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </>
+            )}
+            <button
+              onClick={() =>
+                downloadFile(
+                  currentDocument.document_url,
+                  currentDocument.document_url.split("/").pop()
+                )
+              }
+              className="p-3 text-green-600 hover:bg-green-50 rounded-lg"
+              title="Download / डाउनलोड करा"
+            >
+              <Download size={20} />
+            </button>
+            <button
+              onClick={closeDocumentViewer}
+              className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
+              title="Close / बंद करा"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 p-4 overflow-auto bg-gray-900 flex items-center justify-center">
+          {isImageFile(currentDocument.document_url) ? (
+            <img
+              src={currentDocument.document_url}
+              alt="Preview / पूर्वावलोकन"
+              className="max-w-full max-h-full object-contain"
+              onError={(e) => (e.target.style.display = "none")}
+            />
+          ) : isPdfFile(currentDocument.document_url) ? (
+            <iframe
+              src={currentDocument.document_url}
+              className="w-full h-full border-0 bg-white"
+              title="PDF / पीडीएफ"
+            />
+          ) : (
+            <div className="text-center p-8 bg-white rounded-lg max-w-md">
+              <FileText size={64} className="mx-auto text-gray-400 mb-4" />
+              <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                Preview Not Available / पूर्वावलोकन उपलब्ध नाही
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Download to view this file. / ही फाईल पाहण्यासाठी डाउनलोड करा.
+              </p>
+              <button
+                onClick={() =>
+                  downloadFile(
+                    currentDocument.document_url,
+                    currentDocument.document_url.split("/").pop()
+                  )
+                }
+                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2 mx-auto"
+              >
+                <Download size={18} /> Download / डाउनलोड करा
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 border-t border-gray-200 bg-white">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span className="font-medium">{getFileType(currentDocument.document_url)}</span>
+            <span>
+              {currentIndex + 1} of {ticket.documents.length}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
+);
+
 };
 
 export default ViewTicket;
