@@ -13,3 +13,8 @@
 .react-select__menu {
   @apply z-50;
 }
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

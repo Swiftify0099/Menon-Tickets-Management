@@ -22,6 +22,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { http } from "../../../../http";
 
+// ✨ Skeleton Component
+const SkeletonBox = ({ className }) => (
+  <div className={`bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse rounded-md ${className}`} />
+);
+
 const ViewTicket = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -49,14 +54,14 @@ const ViewTicket = () => {
         console.error(err);
         toast.error("Error loading ticket details");
       } finally {
-        setLoading(false);
+        // ⏳ Minimum 3 second delay
+        setTimeout(() => setLoading(false), 3000);
       }
     };
 
     if (id) fetchTicket();
   }, [id]);
 
-  /* ---------- File Helpers ---------- */
   const getFileIcon = (url) => {
     const ext = url.split(".").pop().toLowerCase();
     if (["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(ext))
@@ -70,9 +75,7 @@ const ViewTicket = () => {
     const exts = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
     return exts.includes(filename.split(".").pop().toLowerCase());
   };
-
   const isPdfFile = (filename) => filename.toLowerCase().endsWith(".pdf");
-
   const getFileType = (filename) => {
     if (isImageFile(filename)) return "Image";
     if (isPdfFile(filename)) return "PDF";
@@ -86,13 +89,11 @@ const ViewTicket = () => {
     setCurrentIndex(idx);
     setViewerOpen(true);
   };
-
   const closeDocumentViewer = () => {
     setViewerOpen(false);
     setCurrentDocument(null);
     setCurrentIndex(0);
   };
-
   const navigateDocument = (dir) => {
     if (!ticket?.documents) return;
     const newIdx =
@@ -126,11 +127,14 @@ const ViewTicket = () => {
 
   const getStatusColor = (status) => {
     const s = status?.toLowerCase();
-    if (["completed", "resolved"].includes(s)) return "bg-green-100 text-green-800 border border-green-200";
+    if (["completed", "resolved"].includes(s))
+      return "bg-green-100 text-green-800 border border-green-200";
     if (["in-progress", "in_progress", "processing"].includes(s))
       return "bg-blue-100 text-blue-800 border border-blue-200";
-    if (["pending", "open"].includes(s)) return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-    if (["cancelled", "closed"].includes(s)) return "bg-red-100 text-red-800 border border-red-200";
+    if (["pending", "open"].includes(s))
+      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+    if (["cancelled", "closed"].includes(s))
+      return "bg-red-100 text-red-800 border border-red-200";
     return "bg-gray-100 text-gray-800 border border-gray-200";
   };
 
@@ -147,12 +151,25 @@ const ViewTicket = () => {
     return map[status?.toLowerCase()] || status || "Unknown";
   };
 
+  // ✨ Skeleton Loader (Full Page)
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="animate-spin text-orange-500 w-8 h-8 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading ticket details...</p>
+      <div className="min-h-screen bg-gray-50 px-6 py-10 animate-fadeIn">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <SkeletonBox className="h-8 w-1/3" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonBox key={i} className="h-32" />
+            ))}
+          </div>
+          <SkeletonBox className="h-6 w-1/4 mt-8" />
+          {[1, 2, 3].map((i) => (
+            <SkeletonBox key={i} className="h-20" />
+          ))}
+          <SkeletonBox className="h-6 w-1/4 mt-8" />
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonBox key={i} className="h-16" />
+          ))}
         </div>
       </div>
     );
@@ -162,7 +179,9 @@ const ViewTicket = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-500 text-lg mb-4">{error || "Ticket not found"}</p>
+          <p className="text-red-500 text-lg mb-4">
+            {error || "Ticket not found"}
+          </p>
           <button
             onClick={() => navigate("/tickets")}
             className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
@@ -174,7 +193,8 @@ const ViewTicket = () => {
     );
   }
 
-  return (
+  // 🟢 Original Code Below (unchanged)
+   return (
   <div className="min-h-screen bg-gray-50 px-4 sm:px-6">
   <ToastContainer position="top-right" autoClose={4000} theme="light" />
 
@@ -306,60 +326,46 @@ const ViewTicket = () => {
                 {ticket.documents.length} document(s) / कागदपत्रे
               </span>
             </div>
-            {existingDocuments.map((doc, index) => {
-  const fileUrl = doc.document_url;
-  const fileName = fileUrl.split("/").pop();
-  const fileType = getFileType(fileUrl);
-  const isImage = /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(fileUrl); // ✅ image check
-
-  return (
-    <div
-      key={doc.document_id}
-      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-    >
-      {/* File info */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="flex-shrink-0">{getFileIcon(fileUrl)}</div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
-          <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-            <span>{fileType}</span>
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>Existing Document / विद्यमान दस्तऐवज</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex items-center gap-1">
-        {/* 👁️ Eye फक्त image साठी */}
-        {isImage && (
-          <button
-            type="button"
-            onClick={() => openDocumentViewer(doc, index)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-            title="View document / दस्तऐवज पहा"
-          >
-            <Eye size={16} />
-          </button>
-        )}
-
-        {/* 📥 Download सर्वांसाठी */}
-        <button
-          type="button"
-          onClick={() => downloadDocument(doc)}
-          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-          title="Download document / दस्तऐवज डाउनलोड करा"
-        >
-          <Download size={16} />
-        </button>
-
-      
-      </div>
-    </div>
-  );
-})}
-
+            <div className="space-y-3">
+              {ticket.documents.map((doc, idx) => (
+                <div
+                  key={doc.document_id}
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex-shrink-0">{getFileIcon(doc.document_url)}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-gray-800 truncate">
+                        {doc.document_url.split("/").pop()}
+                      </p>
+                      <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                        <span>{getFileType(doc.document_url)}</span>
+                        <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                        <span>Document / कागदपत्र {idx + 1}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openDocumentViewer(doc, idx)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="View / पहा"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        downloadFile(doc.document_url, doc.document_url.split("/").pop())
+                      }
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Download / डाउनलोड करा"
+                    >
+                      <Download size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">

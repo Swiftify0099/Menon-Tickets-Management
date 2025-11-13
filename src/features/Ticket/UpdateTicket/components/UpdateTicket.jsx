@@ -471,16 +471,53 @@ const UpdateTicket = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="animate-spin text-orange-500 w-8 h-8 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading ticket data...</p>
+  return (
+    <div className="min-h-screen bg-gray-50 p-6 animate-pulse">
+      {/* Header Skeleton */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="h-10 w-10 bg-gray-200 rounded-lg"></div>
+        <div>
+          <div className="h-5 w-48 bg-gray-200 rounded-lg mb-2"></div>
+          <div className="h-4 w-72 bg-gray-200 rounded-lg"></div>
         </div>
-        <ToastContainer />
       </div>
-    );
-  }
+
+      {/* Form Skeleton */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-6">
+        {/* Section Header */}
+        <div className="h-6 w-64 bg-gray-200 rounded-lg mb-4"></div>
+
+        {/* Form Inputs */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-5">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i}>
+                <div className="h-4 w-40 bg-gray-200 rounded mb-2"></div>
+                <div className="h-12 bg-gray-200 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-5">
+            {[1, 2].map((i) => (
+              <div key={i}>
+                <div className="h-4 w-40 bg-gray-200 rounded mb-2"></div>
+                <div className="h-40 bg-gray-200 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 mt-6">
+          <div className="h-10 w-28 bg-gray-200 rounded-lg"></div>
+          <div className="h-10 w-36 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6">
@@ -565,71 +602,71 @@ const UpdateTicket = () => {
 
                 {/* Existing Documents */}
                 {existingDocuments.map((doc, index) => {
-  const fileUrl = doc.document_url;
-  const fileName = fileUrl.split("/").pop();
-  const fileType = getFileType(fileUrl);
-  const isImage = /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(fileUrl); // ✅ image check
+                  const fileUrl = doc.document_url;
+                  const fileName = fileUrl.split("/").pop();
+                  const fileType = getFileType(fileUrl);
+                  const isImage = /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(fileUrl); // ✅ image check
 
-  return (
-    <div
-      key={doc.document_id}
-      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-    >
-      {/* File info */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="flex-shrink-0">{getFileIcon(fileUrl)}</div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
-          <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-            <span>{fileType}</span>
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>Existing Document / विद्यमान दस्तऐवज</span>
-          </p>
-        </div>
-      </div>
+                  return (
+                    <div
+                      key={doc.document_id}
+                      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                    >
+                      {/* File info */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex-shrink-0">{getFileIcon(fileUrl)}</div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
+                          <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                            <span>{fileType}</span>
+                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            <span>Existing Document / विद्यमान दस्तऐवज</span>
+                          </p>
+                        </div>
+                      </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-1">
-        {/* 👁️ Eye फक्त image साठी */}
-        {isImage && (
-          <button
-            type="button"
-            onClick={() => openDocumentViewer(doc, index)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-            title="View document / दस्तऐवज पहा"
-          >
-            <Eye size={16} />
-          </button>
-        )}
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1">
+                        {/* 👁️ Eye फक्त image साठी */}
+                        {isImage && (
+                          <button
+                            type="button"
+                            onClick={() => openDocumentViewer(doc, index)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                            title="View document / दस्तऐवज पहा"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        )}
 
-        {/* 📥 Download सर्वांसाठी */}
-        <button
-          type="button"
-          onClick={() => downloadDocument(doc)}
-          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-          title="Download document / दस्तऐवज डाउनलोड करा"
-        >
-          <Download size={16} />
-        </button>
+                        {/* 📥 Download सर्वांसाठी */}
+                        <button
+                          type="button"
+                          onClick={() => downloadDocument(doc)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                          title="Download document / दस्तऐवज डाउनलोड करा"
+                        >
+                          <Download size={16} />
+                        </button>
 
-        {/* ❌ Delete सर्वांसाठी */}
-        <button
-          type="button"
-          onClick={() => removeExistingDocument(doc.document_id)}
-          disabled={deletingDocument === doc.document_id}
-          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Remove document / दस्तऐवज काढा"
-        >
-          {deletingDocument === doc.document_id ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <X size={16} />
-          )}
-        </button>
-      </div>
-    </div>
-  );
-})}
+                        {/* ❌ Delete सर्वांसाठी */}
+                        <button
+                          type="button"
+                          onClick={() => removeExistingDocument(doc.document_id)}
+                          disabled={deletingDocument === doc.document_id}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Remove document / दस्तऐवज काढा"
+                        >
+                          {deletingDocument === doc.document_id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <X size={16} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
 
 
                 {/* Add New Documents */}
@@ -722,22 +759,22 @@ const UpdateTicket = () => {
             </div>
 
 
-                <div className="flex flex-col sm:flex-row   justify-end pt-6   gap-5 mt-5 ">
-                  <button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel / रद्द करा
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
-                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {updating ? "Updating... / अद्यतनित करत आहे..." : "Update Ticket / तिकीट अद्यतनित करा"}
-                  </button>
-                </div>
+            <div className="flex flex-col sm:flex-row   justify-end pt-6   gap-5 mt-5 ">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel / रद्द करा
+              </button>
+              <button
+                type="submit"
+                disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
+                className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updating ? "Updating... / अद्यतनित करत आहे..." : "Update Ticket / तिकीट अद्यतनित करा"}
+              </button>
+            </div>
           </form>
         </div>
       </div>
