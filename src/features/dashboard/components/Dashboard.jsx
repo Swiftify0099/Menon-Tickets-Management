@@ -109,7 +109,7 @@ const Dashboard = () => {
       {/* ✅ Dashboard Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
         {/* Tickets */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+        <div className="bg-gray-50 rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
             Tickets / तिकिटे
           </h3>
@@ -119,7 +119,7 @@ const Dashboard = () => {
         </div>
 
         {/* Completed */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+        <div className="bg-green-50 rounded-xl hover:shadow-green-200 shadow-lg border border-green-300 p-6 text-center hover:shadow-xl transition">
           <h3 className="text-sm font-semibold text-green-600 uppercase tracking-wide">
             Completed / पूर्ण
           </h3>
@@ -129,7 +129,7 @@ const Dashboard = () => {
         </div>
 
         {/* In Progress */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+        <div className="bg-blue-50 rounded-xl shadow-sm hover:shadow-blue-200 border border-blue-300  p-6 text-center hover:shadow-xl transition">
           <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
             In Progress / प्रगतीत
           </h3>
@@ -139,7 +139,7 @@ const Dashboard = () => {
         </div>
 
         {/* Under Verification */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center hover:shadow-xl transition">
+        <div className="bg-orange-50 rounded-xl shadow-lg border hover:shadow-orange-200 border-orange-300 p-6 text-center hover:shadow-xl transition">
           <h3 className="text-sm font-semibold text-orange-700 uppercase tracking-wide">
             Under Verification / तपासणीखाली
           </h3>

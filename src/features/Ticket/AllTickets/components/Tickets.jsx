@@ -1,5 +1,5 @@
 // src/features/Ticket/AllTickets/components/Tickets.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Loader2, Trash2, FolderOpenDot, Eye, Edit, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -16,6 +16,8 @@ const Tickets = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingTicket, setDeletingTicket] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const dropdownRef = useRef(null); // ✅ Ref for status dropdown
 
   const statusOptions = [
     "All / सर्व",
@@ -70,7 +72,9 @@ const Tickets = () => {
   };
 
   const filteredTickets =
-    activeTab.startsWith("All") ? tickets : tickets.filter((t) => t.status?.toLowerCase().includes(activeTab.split(" / ")[0].toLowerCase()));
+    activeTab.startsWith("All") ? tickets : tickets.filter((t) =>
+      t.status?.toLowerCase().includes(activeTab.split(" / ")[0].toLowerCase())
+    );
 
   const getStatusColor = (status) => {
     const s = status?.toLowerCase();
@@ -83,6 +87,18 @@ const Tickets = () => {
     return "bg-gray-100 text-gray-700";
   };
 
+  // ✅ Close status dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowStatusFilter(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <>
       <div className="space-y-6">
@@ -94,7 +110,7 @@ const Tickets = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {/* Status Filter Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowStatusFilter(!showStatusFilter)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-sm font-medium transition-all shadow-md w-full sm:w-auto justify-between"
@@ -107,7 +123,7 @@ const Tickets = () => {
               </button>
 
               {showStatusFilter && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <div className="absolute top-full right-1 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                   <div className="py-2">
                     {statusOptions.map((status) => (
                       <button
@@ -147,7 +163,7 @@ const Tickets = () => {
               <div className="text-center py-12 text-gray-500">
                 <FolderOpenDot size={48} className="mx-auto mb-4 text-gray-300" />
                 <p>No tickets found / कोणतीही तिकिटे सापडली नाहीत</p>
-                {activeTab !== "स्थिती / सर्व" && (
+                {activeTab !== "All / सर्व" && (
                   <button
                     onClick={() => setActiveTab("All / सर्व")}
                     className="mt-2 text-orange-600 hover:text-orange-500 text-sm font-medium"
@@ -185,11 +201,7 @@ const Tickets = () => {
                       <td className="px-5 py-4 text-gray-600">{t.assign_user_name || "—"}</td>
                       <td className="px-5 py-4 text-sm text-gray-600">{t.assign_date || "—"}</td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(
-                            t.status
-                          )}`}
-                        >
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(t.status)}`}>
                           {t.status || "Open / उघडा"}
                         </span>
                       </td>
@@ -223,8 +235,7 @@ const Tickets = () => {
           {totalPages > 1 && (
             <div className="bg-gray-50 px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
               <p className="text-sm text-gray-700">
-                Showing page / पृष्ठ दाखवत आहे <strong>{page}</strong> of / पैकी{" "}
-                <strong>{totalPages}</strong>
+                Showing page / पृष्ठ दाखवत आहे <strong>{page}</strong> of / पैकी <strong>{totalPages}</strong>
               </p>
               <div className="flex gap-3">
                 <button

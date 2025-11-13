@@ -306,46 +306,60 @@ const ViewTicket = () => {
                 {ticket.documents.length} document(s) / कागदपत्रे
               </span>
             </div>
-            <div className="space-y-3">
-              {ticket.documents.map((doc, idx) => (
-                <div
-                  key={doc.document_id}
-                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="flex-shrink-0">{getFileIcon(doc.document_url)}</div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-gray-800 truncate">
-                        {doc.document_url.split("/").pop()}
-                      </p>
-                      <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                        <span>{getFileType(doc.document_url)}</span>
-                        <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                        <span>Document / कागदपत्र {idx + 1}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => openDocumentViewer(doc, idx)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="View / पहा"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        downloadFile(doc.document_url, doc.document_url.split("/").pop())
-                      }
-                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      title="Download / डाउनलोड करा"
-                    >
-                      <Download size={18} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {existingDocuments.map((doc, index) => {
+  const fileUrl = doc.document_url;
+  const fileName = fileUrl.split("/").pop();
+  const fileType = getFileType(fileUrl);
+  const isImage = /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(fileUrl); // ✅ image check
+
+  return (
+    <div
+      key={doc.document_id}
+      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+    >
+      {/* File info */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex-shrink-0">{getFileIcon(fileUrl)}</div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
+          <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+            <span>{fileType}</span>
+            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+            <span>Existing Document / विद्यमान दस्तऐवज</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-1">
+        {/* 👁️ Eye फक्त image साठी */}
+        {isImage && (
+          <button
+            type="button"
+            onClick={() => openDocumentViewer(doc, index)}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+            title="View document / दस्तऐवज पहा"
+          >
+            <Eye size={16} />
+          </button>
+        )}
+
+        {/* 📥 Download सर्वांसाठी */}
+        <button
+          type="button"
+          onClick={() => downloadDocument(doc)}
+          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+          title="Download document / दस्तऐवज डाउनलोड करा"
+        >
+          <Download size={16} />
+        </button>
+
+      
+      </div>
+    </div>
+  );
+})}
+
           </div>
         ) : (
           <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
@@ -361,7 +375,7 @@ const ViewTicket = () => {
       </div>
 
       {/* === TWO STATIC BUTTONS === */}
-      <div className="p-6 border-t border-gray-200 bg-gray-50">
+      <div className="p-6 ">
         <div className="flex justify-end gap-4">
           <div
             className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700"
