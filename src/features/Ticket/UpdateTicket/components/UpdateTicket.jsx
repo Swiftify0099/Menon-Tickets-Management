@@ -504,11 +504,11 @@ const UpdateTicket = () => {
             onClick={() => navigate(-1)}
             className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-orange-300"
           >
-            <ArrowLeft size={20} className="text-gray-700" />
+            <ArrowLeft size={20} className="text-gray-700" /> 
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Update Ticket</h1>
-            <p className="text-gray-600 text-sm mt-1">Modify ticket information and documents</p>
+            <h1 className="text-2xl font-bold text-gray-800">Update Ticket  / तिकीट अद्यतनित करा</h1>
+            <p className="text-gray-600 text-sm mt-1">Modify ticket information and documents / तिकीट माहिती आणि कागदपत्रे सुधारित करा</p>
           </div>
         </div>
 
@@ -516,10 +516,10 @@ const UpdateTicket = () => {
         {/* Main Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4">
-            <h2 className="text-xl font-bold">Update Ticket Information</h2>
-            <p className="text-orange-100 text-sm mt-1">Update the fields below to modify your ticket</p>
+            <h2 className="text-xl font-bold">Update Ticket Information / तिकीट माहिती अद्यतनित करा</h2>
+            <p className="text-orange-100 text-sm mt-1">Update the fields below to modify your ticket / आपल्या तिकीटमध्ये सुधारणा करण्यासाठी खालील फील्ड्स अद्यतनित करा</p>
           </div>
-
+ 
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
@@ -527,7 +527,7 @@ const UpdateTicket = () => {
                 {/* Service Provider */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Service Provider <span className="text-red-500">*</span>
+                    Service Provider / सेवा प्रदाता <span className="text-red-500">*</span>
                   </label>
                   <Select
                     value={selectedProvider}
@@ -543,7 +543,7 @@ const UpdateTicket = () => {
                 {/* Service */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Service <span className="text-red-500">*</span>
+                    Service / सेवा <span className="text-red-500">*</span>
                   </label>
                   <Select
                     value={selectedService}
@@ -558,7 +558,7 @@ const UpdateTicket = () => {
                   {!form.service_provider_id && (
                     <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                       <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                      Please select a provider first
+                      Please select a provider first  / कृपया प्रथम प्रदाता निवडा
                     </p>
                   )}
                 </div>
@@ -567,9 +567,9 @@ const UpdateTicket = () => {
                 {existingDocuments.length > 0 && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Existing Documents
+                      Existing Documents / विद्यमान दस्तऐवज
                       <span className="ml-2 text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {existingDocuments.length} document(s)
+                        {existingDocuments.length} document(s) / दस्तऐवज
                       </span>
                     </label>
                     <div className="space-y-3">
@@ -586,7 +586,7 @@ const UpdateTicket = () => {
                               <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
                                 <span>{getFileType(doc.document_url)}</span>
                                 <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                <span>Existing Document</span>
+                                <span>Existing Document  / विद्यमान दस्तऐवज</span>
                               </p>
                             </div>
                           </div>
@@ -595,7 +595,7 @@ const UpdateTicket = () => {
                               type="button"
                               onClick={() => openDocumentViewer(doc, index)}
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                              title="View document"
+                              title="View document / दस्तऐवज पहा"
                             >
                               <Eye size={16} />
                             </button>
@@ -603,7 +603,7 @@ const UpdateTicket = () => {
                               type="button"
                               onClick={() => downloadDocument(doc)}
                               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                              title="Download document"
+                              title="Download document  / दस्तऐवज डाउनलोड करा"
                             >
                               <Download size={16} />
                             </button>
@@ -612,7 +612,7 @@ const UpdateTicket = () => {
                               onClick={() => removeExistingDocument(doc.document_id)}
                               disabled={deletingDocument === doc.document_id}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Remove document"
+                              title="Remove document / दस्तऐवज काढा"
                             >
                               {deletingDocument === doc.document_id ? (
                                 <Loader2 size={16} className="animate-spin" />
@@ -630,10 +630,10 @@ const UpdateTicket = () => {
                 {/* Add New Documents */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Add New Documents
+                    Add New Documents / नवीन दस्तऐवज जोडा
                     {previewFiles.length > 0 && (
                       <span className="ml-2 text-xs font-normal text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
-                        {previewFiles.length} new file(s)
+                        {previewFiles.length} new file(s) / नवीन फाइल
                       </span>
                     )}
                   </label>
@@ -641,7 +641,7 @@ const UpdateTicket = () => {
                     <Upload className="mx-auto h-10 w-10 text-gray-400 mb-3" />
                     <label className="cursor-pointer block">
                       <span className="text-base font-medium text-orange-600 hover:text-orange-700 transition-colors">
-                        Click to upload files
+                        Click to upload files / फाइल अपलोड करण्यासाठी क्लिक करा
                       </span>
                       <input
                         type="file"
@@ -651,13 +651,13 @@ const UpdateTicket = () => {
                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.svg"
                       />
                     </label>
-                    <p className="text-gray-500 text-sm mt-2">Supports PDF, DOC, JPG, PNG, GIF • Max 10MB each</p>
+                    <p className="text-gray-500 text-sm mt-2">Supports PDF, DOC, JPG, PNG, GIF • Max 10MB each / समर्थित • प्रत्येक जास्तीत जास्त 10MB</p>
                   </div>
 
                   {/* New File List */}
                   {previewFiles.length > 0 && (
                     <div className="mt-4 space-y-3">
-                      <p className="text-sm font-medium text-gray-700">Files to be uploaded:</p>
+                      <p className="text-sm font-medium text-gray-700">Files to be uploaded / अपलोड केल्या जाणाऱ्या फाइल्स : </p>
                       {previewFiles.map((file, i) => (
                         <div key={i} className="flex items-center justify-between bg-orange-50 p-3 rounded-lg border border-orange-200">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -677,7 +677,7 @@ const UpdateTicket = () => {
                             type="button"
                             onClick={() => removeNewFile(i)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                            title="Remove file"
+                            title="Remove file / फाइल काढा" 
                           >
                             <X size={16} />
                           </button>
@@ -693,9 +693,9 @@ const UpdateTicket = () => {
                 {/* Ticket Details */}
                 <div className="h-full flex flex-col">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Issue Description <span className="text-red-500">*</span>
+                    Issue Description / समस्येचे वर्णन <span className="text-red-500">*</span>
                     <span className="ml-2 text-xs font-normal text-gray-500">
-                      {form.ticket_details.length}/1000 characters
+                      {form.ticket_details.length}/1000 characters / अक्षरे
                     </span>
                   </label>
                   <textarea
@@ -708,7 +708,7 @@ const UpdateTicket = () => {
                     maxLength={1000}
                   />
                   <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Minimum 10 characters required</span>
+                    <span>Minimum 10 characters required / किमान 10 अक्षरे आवश्यक</span>
                     <span>{form.ticket_details.length} / 1000</span>
                   </div>
                 </div>
@@ -722,14 +722,14 @@ const UpdateTicket = () => {
                 onClick={() => navigate(-1)}
                 className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                Cancel / रद्द करा
               </button>
               <button
                 type="submit"
                 disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
                 className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {updating ? "Updating..." : "Update Ticket"}
+                {updating ? "Updating... / अद्यतनित करत आहे..." : "Update Ticket / तिकीट अद्यतनित करा"}
               </button>
             </div>
           </form>
@@ -759,14 +759,14 @@ const UpdateTicket = () => {
                     <button
                       onClick={() => navigateDocument('prev')}
                       className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="Previous document"
+                      title="Previous document / मागील दस्तऐवज"
                     >
                       <ChevronLeft size={20} />
                     </button>
                     <button
                       onClick={() => navigateDocument('next')}
                       className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="Next document"
+                      title="Next document / पुढील दस्तऐवज"
                     >
                       <ChevronRight size={20} />
                     </button>
@@ -775,14 +775,14 @@ const UpdateTicket = () => {
                 <button
                   onClick={() => downloadDocument(currentDocument)}
                   className="p-3 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                  title="Download"
+                  title="Download / डाउनलोड करा"
                 >
                   <Download size={20} />
                 </button>
                 <button
                   onClick={closeDocumentViewer}
                   className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                  title="Close"
+                  title="Close  / बंद करा"
                 >
                   <X size={20} />
                 </button>
@@ -823,7 +823,7 @@ const UpdateTicket = () => {
                     className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center gap-2 mx-auto"
                   >
                     <Download size={18} />
-                    Download File
+                    Download File / फाइल डाउनलोड करा
                   </button>
                 </div>
               )}
@@ -833,7 +833,7 @@ const UpdateTicket = () => {
             <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span className="font-medium">
-                  {getFileType(currentDocument.document_url)} Document
+                  {getFileType(currentDocument.document_url)} Document / दस्तऐवज
                 </span>
                 <span>
                   {currentIndex + 1} of {existingDocuments.length}
@@ -854,11 +854,12 @@ const UpdateTicket = () => {
               </div>
 
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Delete Document
+                Delete Document / दस्तऐवज हटवा
               </h3>
 
               <p className="text-gray-600 mb-6">
                 Are you sure you want to delete this document? This action cannot be undone and the document will be permanently removed.
+                / आपण या दस्तऐवज हटवू इच्छिता का? ही क्रिया पूर्ववत करता येणार नाही आणि दस्तऐवज कायमची हटवला जाईल.
               </p>
 
               <div className="flex gap-3 justify-center">
@@ -867,7 +868,7 @@ const UpdateTicket = () => {
                   disabled={deletingDocument}
                   className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Cancel
+                  Cancel / रद्द करा
                 </button>
                 <button
                   onClick={confirmDeleteDocument}
@@ -877,10 +878,10 @@ const UpdateTicket = () => {
                   {deletingDocument ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Deleting...
+                      Deleting... / हटवित आहे...
                     </>
                   ) : (
-                    'Delete Document'
+                    'Delete Document / दस्तऐवज हटवा'
                   )}
                 </button>
               </div>

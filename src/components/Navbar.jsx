@@ -1,22 +1,50 @@
 // src/features/Navbar/Navbar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Lock, Home } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "./../redux/slices/login";
 import Logo from "../assets/menon-logo.png";
 
-const Navbar = ({ onToggleSidebar }) => {
+const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState(() => {
+    // Initial load from localStorage
+    return JSON.parse(localStorage.getItem("user")) || null;
+  });
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  // Single source of truth: Redux
-  const currentUser = useSelector((state) => state.login.user);
+  // ✅ Whenever localStorage changes, update Navbar
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const updatedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(updatedUser);
+    };
+
+    // listen for localStorage updates (even from same tab)
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function (key, value) {
+      originalSetItem.apply(this, arguments);
+      window.dispatchEvent(new Event("storage"));
+    };
+
+    const originalRemoveItem = localStorage.removeItem;
+    localStorage.removeItem = function (key) {
+      originalRemoveItem.apply(this, arguments);
+      window.dispatchEvent(new Event("storage"));
+    };
+
+    const originalClear = localStorage.clear;
+    localStorage.clear = function () {
+      originalClear.apply(this, arguments);
+      window.dispatchEvent(new Event("storage"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
     localStorage.clear();
+    setUser(null);
     navigate("/login");
   };
 
@@ -50,14 +78,15 @@ const Navbar = ({ onToggleSidebar }) => {
         >
           <div className="hidden sm:flex flex-col items-end text-sm leading-tight">
             <span className="font-medium text-gray-800 capitalize tracking-wide">
-              {`${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() || "User"}
+              {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                "User"}
             </span>
             <span className="text-xs text-gray-500 font-light">
-              {currentUser?.role?.role_name || "User"}
+              {user?.role?.role_name || "User"}
             </span>
           </div>
           <img
-            src={currentUser?.avatar || "/default-avatar.png"}
+            src={user?.avatar || "/default-avatar.png"}
             alt="Profile"
             className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
           />
