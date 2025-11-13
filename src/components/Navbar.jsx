@@ -1,5 +1,5 @@
 // src/features/Navbar/Navbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Lock, Home } from "lucide-react";
 import Logo from "../assets/menon-logo.png";
@@ -7,19 +7,18 @@ import Logo from "../assets/menon-logo.png";
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState(() => {
-    // Initial load from localStorage
     return JSON.parse(localStorage.getItem("user")) || null;
   });
   const navigate = useNavigate();
+  const dropdownRef = useRef(null); // ✅ Dropdown ref
 
-  // ✅ Whenever localStorage changes, update Navbar
+  // ✅ localStorage update listener
   useEffect(() => {
     const handleStorageChange = () => {
       const updatedUser = JSON.parse(localStorage.getItem("user"));
       setUser(updatedUser);
     };
 
-    // listen for localStorage updates (even from same tab)
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function (key, value) {
       originalSetItem.apply(this, arguments);
@@ -39,7 +38,20 @@ const Navbar = () => {
     };
 
     window.addEventListener("storage", handleStorageChange);
+
     return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // ✅ Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -71,15 +83,14 @@ const Navbar = () => {
       </div>
 
       {/* Right - Profile */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-100"
         >
           <div className="hidden sm:flex flex-col items-end text-sm leading-tight">
             <span className="font-medium text-gray-800 capitalize tracking-wide">
-              {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
-                "User"}
+              {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "User"}
             </span>
             <span className="text-xs text-gray-500 font-light">
               {user?.role?.role_name || "User"}
@@ -102,18 +113,6 @@ const Navbar = () => {
               <User size={16} />
               <span>Profile</span>
             </Link>
-
-            <button
-              onClick={() => {
-                setDropdownOpen(false);
-                navigate("/");
-              }}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
-            >
-              <Home size={16} />
-              <span>Home</span>
-            </button>
-
             <button
               onClick={handleChangePassword}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
@@ -121,7 +120,6 @@ const Navbar = () => {
               <Lock size={16} />
               <span>Change Password</span>
             </button>
-
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 w-full text-left mt-1 border-t border-gray-100 pt-2"

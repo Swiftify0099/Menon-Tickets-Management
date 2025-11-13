@@ -361,7 +361,7 @@ const ViewTicket = () => {
       </div>
 
       {/* === TWO STATIC BUTTONS === */}
-      <div className="p-6 border-t border-gray-200 bg-gray-50">
+      <div className="p-6 ">
         <div className="flex justify-end gap-4">
           <div
             className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700"

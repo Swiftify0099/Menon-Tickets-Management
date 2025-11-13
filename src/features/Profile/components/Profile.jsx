@@ -17,7 +17,7 @@ const Profile = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // ✅ Load user from localStorage on mount
+  // Load user from localStorage on mount
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -31,7 +31,7 @@ const Profile = () => {
     }
   }, [dispatch]);
 
-  // ✅ Fetch user profile from API
+  // Fetch user profile from API
   const {
     data: profile,
     isLoading,
@@ -42,22 +42,22 @@ const Profile = () => {
     queryFn: getUser,
   });
 
-  // ✅ Mutation - update profile info
+  // Mutation - update profile info
   const updateProfileMutation = useMutation({
     mutationFn: updateUserProfile,
     onSuccess: (res) => {
       const updatedUser = res?.data?.user || formData;
-      toast.success("Profile info updated successfully!");
+      toast.success("Profile info updated successfully! / प्रोफाइल माहिती यशस्वीरित्या अपडेट केली!");
       syncUser(updatedUser);
       refetch();
     },
     onError: (err) => {
       console.error("Update failed:", err);
-      toast.error("Failed to update profile!");
+      toast.error("Failed to update profile! / प्रोफाइल अपडेट करण्यात अयशस्वी!");
     },
   });
 
-  // ✅ Mutation - update profile photo
+  // Mutation - update profile photo
   const updatePhotoMutation = useMutation({
     mutationFn: updateProfilePicture,
     onSuccess: (res) => {
@@ -67,25 +67,25 @@ const Profile = () => {
       } else if (res?.data?.avatar) {
         updatedUser = { ...formData, avatar: res.data.avatar };
       }
-      toast.success("Profile photo updated successfully!");
+      toast.success("Profile photo updated successfully! / प्रोफाइल फोटो यशस्वीरित्या अपडेट केले!");
       syncUser(updatedUser);
       setSelectedFile(null);
       refetch();
     },
     onError: (err) => {
       console.error("Photo upload failed:", err);
-      toast.error("Failed to update photo!");
+      toast.error("Failed to update photo! / फोटो अपडेट करण्यात अयशस्वी!");
     },
   });
 
-  // ✅ Sync with Redux + localStorage
+  // Sync with Redux + localStorage
   const syncUser = (user) => {
     setFormData(user);
     localStorage.setItem("user", JSON.stringify(user));
     dispatch(updateUser(user));
   };
 
-  // ✅ When fetched from server, sync to state
+  // When fetched from server, sync to state
   useEffect(() => {
     if (profile?.data?.user) syncUser(profile.data.user);
   }, [profile]);
@@ -109,27 +109,27 @@ const Profile = () => {
 
   const handlePhotoUpload = () => {
     if (!selectedFile) {
-      toast.warn("Please select a photo first!");
+      toast.warn("Please select a photo first! / कृपया प्रथम फोटो निवडा!");
       return;
     }
     if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error("File too large! Please select an image under 5MB.");
+      toast.error("File too large! Please select an image under 5MB. / फाईल खूप मोठी आहे! कृपया 5MB पेक्षा कमी फोटो निवडा.");
       return;
     }
 
     updatePhotoMutation.mutate({ profile_photo: selectedFile });
   };
 
-  if (isLoading) return <p>Loading profile...</p>;
-  if (isError) return <p className="text-red-500">Failed to load profile.</p>;
+  if (isLoading) return <p>Loading profile... / प्रोफाइल लोड करत आहे...</p>;
+  if (isError) return <p className="text-red-500">Failed to load profile. / प्रोफाइल लोड करण्यात अयशस्वी.</p>;
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center p-4 space-y-6">
       <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">My Profile</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">My Profile / माझे प्रोफाइल</h2>
 
-      {/* ✅ Profile Photo */}
+      {/* Profile Photo */}
       <div className="flex flex-col items-center space-y-3">
         <img
           src={
@@ -142,7 +142,7 @@ const Profile = () => {
         />
 
         <label className="cursor-pointer bg-gray-100 px-3 py-1 text-sm rounded-md hover:bg-gray-200">
-          Change Photo
+          Change Photo / फोटो बदला
           <input
             type="file"
             accept="image/*"
@@ -156,14 +156,14 @@ const Profile = () => {
           disabled={updatePhotoMutation.isPending}
           className="bg-orange-500 hover:bg-orange-600 text-white py-1 px-4 rounded-md text-sm"
         >
-          {updatePhotoMutation.isPending ? "Uploading..." : "Upload Photo"}
+          {updatePhotoMutation.isPending ? "Uploading... / अपलोड करत आहे..." : "Upload Photo / फोटो अपलोड करा"}
         </button>
       </div>
 
-      <div className="space-y-3 mt-4">
+      <div className="space-y-3 w-full max-w-md">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name
+            First Name / पहिले नाव
           </label>
           <input
             name="first_name"
@@ -175,7 +175,7 @@ const Profile = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name
+            Last Name / आडनाव
           </label>
           <input
             name="last_name"
@@ -187,7 +187,7 @@ const Profile = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
+            Email / ईमेल
           </label>
           <input
             value={formData.email || ""}
@@ -198,7 +198,7 @@ const Profile = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone
+            Phone / फोन
           </label>
           <input
             name="phone"
@@ -213,7 +213,7 @@ const Profile = () => {
           disabled={updateProfileMutation.isPending}
           className="bg-orange-500 hover:bg-orange-600 text-white py-1 px-4 rounded-md text-sm"
         >
-          {updateProfileMutation.isPending ? "Updating..." : "Update Profile"}
+          {updateProfileMutation.isPending ? "Updating... / अपडेट करत आहे..." : "Update Profile / प्रोफाइल अपडेट करा"}
         </button>
       </div>
     </div>

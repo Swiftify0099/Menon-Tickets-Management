@@ -377,7 +377,7 @@ const UpdateTicket = () => {
       console.log('Response status:', response.status);
 
       // Comprehensive success checking
-      const isSuccess = 
+      const isSuccess =
         response?.data?.status === 200 ||
         response?.status === 200 ||
         response?.data?.success === true ||
@@ -394,7 +394,7 @@ const UpdateTicket = () => {
         }, 2000);
       } else {
         // Extract error message from various possible locations
-        const errorMessage = 
+        const errorMessage =
           response?.data?.message ||
           response?.message ||
           response?.data?.error ||
@@ -407,9 +407,9 @@ const UpdateTicket = () => {
     } catch (error) {
       console.error('Error updating ticket:', error);
       console.error('Error response:', error.response);
-      
+
       // More comprehensive error handling
-      const errorMessage = 
+      const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.response?.statusText ||
@@ -504,7 +504,7 @@ const UpdateTicket = () => {
             onClick={() => navigate(-1)}
             className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-orange-300"
           >
-            <ArrowLeft size={20} className="text-gray-700" /> 
+            <ArrowLeft size={20} className="text-gray-700" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Update Ticket  / तिकीट अद्यतनित करा</h1>
@@ -512,14 +512,14 @@ const UpdateTicket = () => {
           </div>
         </div>
 
-    
+
         {/* Main Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4">
             <h2 className="text-xl font-bold">Update Ticket Information / तिकीट माहिती अद्यतनित करा</h2>
             <p className="text-orange-100 text-sm mt-1">Update the fields below to modify your ticket / आपल्या तिकीटमध्ये सुधारणा करण्यासाठी खालील फील्ड्स अद्यतनित करा</p>
           </div>
- 
+
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
@@ -564,68 +564,73 @@ const UpdateTicket = () => {
                 </div>
 
                 {/* Existing Documents */}
-                {existingDocuments.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Existing Documents / विद्यमान दस्तऐवज
-                      <span className="ml-2 text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {existingDocuments.length} document(s) / दस्तऐवज
-                      </span>
-                    </label>
-                    <div className="space-y-3">
-                      {existingDocuments.map((doc, index) => (
-                        <div key={doc.document_id} className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="flex-shrink-0">
-                              {getFileIcon(doc.document_url)}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-800 truncate">
-                                {doc.document_url.split('/').pop()}
-                              </p>
-                              <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
-                                <span>{getFileType(doc.document_url)}</span>
-                                <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                <span>Existing Document  / विद्यमान दस्तऐवज</span>
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => openDocumentViewer(doc, index)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                              title="View document / दस्तऐवज पहा"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => downloadDocument(doc)}
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                              title="Download document  / दस्तऐवज डाउनलोड करा"
-                            >
-                              <Download size={16} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => removeExistingDocument(doc.document_id)}
-                              disabled={deletingDocument === doc.document_id}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Remove document / दस्तऐवज काढा"
-                            >
-                              {deletingDocument === doc.document_id ? (
-                                <Loader2 size={16} className="animate-spin" />
-                              ) : (
-                                <X size={16} />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {existingDocuments.map((doc, index) => {
+  const fileUrl = doc.document_url;
+  const fileName = fileUrl.split("/").pop();
+  const fileType = getFileType(fileUrl);
+  const isImage = /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(fileUrl); // ✅ image check
+
+  return (
+    <div
+      key={doc.document_id}
+      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+    >
+      {/* File info */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex-shrink-0">{getFileIcon(fileUrl)}</div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-gray-800 truncate">{fileName}</p>
+          <p className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+            <span>{fileType}</span>
+            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+            <span>Existing Document / विद्यमान दस्तऐवज</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-1">
+        {/* 👁️ Eye फक्त image साठी */}
+        {isImage && (
+          <button
+            type="button"
+            onClick={() => openDocumentViewer(doc, index)}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+            title="View document / दस्तऐवज पहा"
+          >
+            <Eye size={16} />
+          </button>
+        )}
+
+        {/* 📥 Download सर्वांसाठी */}
+        <button
+          type="button"
+          onClick={() => downloadDocument(doc)}
+          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+          title="Download document / दस्तऐवज डाउनलोड करा"
+        >
+          <Download size={16} />
+        </button>
+
+        {/* ❌ Delete सर्वांसाठी */}
+        <button
+          type="button"
+          onClick={() => removeExistingDocument(doc.document_id)}
+          disabled={deletingDocument === doc.document_id}
+          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Remove document / दस्तऐवज काढा"
+        >
+          {deletingDocument === doc.document_id ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <X size={16} />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+})}
+
 
                 {/* Add New Documents */}
                 <div>
@@ -677,7 +682,7 @@ const UpdateTicket = () => {
                             type="button"
                             onClick={() => removeNewFile(i)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                            title="Remove file / फाइल काढा" 
+                            title="Remove file / फाइल काढा"
                           >
                             <X size={16} />
                           </button>
@@ -691,7 +696,7 @@ const UpdateTicket = () => {
               {/* Right Column */}
               <div className="space-y-6">
                 {/* Ticket Details */}
-                <div className="h-full flex flex-col">
+                <div className="min-h-screen flex flex-col space-x-10">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Issue Description / समस्येचे वर्णन <span className="text-red-500">*</span>
                     <span className="ml-2 text-xs font-normal text-gray-500">
@@ -711,27 +716,28 @@ const UpdateTicket = () => {
                     <span>Minimum 10 characters required / किमान 10 अक्षरे आवश्यक</span>
                     <span>{form.ticket_details.length} / 1000</span>
                   </div>
+                  {/* Action Buttons */}
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 mt-8">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel / रद्द करा
-              </button>
-              <button
-                type="submit"
-                disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
-                className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {updating ? "Updating... / अद्यतनित करत आहे..." : "Update Ticket / तिकीट अद्यतनित करा"}
-              </button>
-            </div>
+
+                <div className="flex flex-col sm:flex-row   justify-end pt-6   gap-5 mt-5 ">
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="px-8 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel / रद्द करा
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updating || !form.service_provider_id || !form.service_id || !form.ticket_details.trim() || form.ticket_details.trim().length < 10}
+                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updating ? "Updating... / अद्यतनित करत आहे..." : "Update Ticket / तिकीट अद्यतनित करा"}
+                  </button>
+                </div>
           </form>
         </div>
       </div>

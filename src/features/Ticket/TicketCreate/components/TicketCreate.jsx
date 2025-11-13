@@ -206,7 +206,7 @@ const TicketCreate = () => {
                   {loadingServices ? (
                     <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
                   ) : serviceOptions.length === 0 ? (
-                    <div className="px-4 py-3 bg-gray-50 border border-dashed rounded-lg text-gray-500 text-center text-sm">
+                    <div className="px-4 py-3 bg-gray-50 border border-dashed rounded-lg text-gray-500 text-start text-sm">
                       {form.provider_id
                         ? "No services available / कोणतीही सेवा उपलब्ध नाही"
                         : "Select provider first / प्रथम प्रदाता निवडा"}
@@ -305,8 +305,10 @@ const TicketCreate = () => {
                   </p>
                 </div>
 
+              </div>
+            </div>
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-4 pt-4">
+                <div className="flex justify-end mt-2 gap-4 pt-4">
                   <button
                     type="button"
                     onClick={() => navigate("/")}
@@ -333,8 +335,6 @@ const TicketCreate = () => {
                     )}
                   </button>
                 </div>
-              </div>
-            </div>
           </form>
         </div>
       </div>

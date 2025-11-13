@@ -263,6 +263,7 @@ const TicketCreate = () => {
         </div>
 
         {/* Buttons */}
+      </form>
         <div className="flex justify-end gap-4 pt-6 border-t">
           <button
             type="button"
@@ -280,7 +281,6 @@ const TicketCreate = () => {
             {loading ? "Creating..." : "Create Ticket"}
           </button>
         </div>
-      </form>
     </div>
   );
 };

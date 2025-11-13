@@ -6,6 +6,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Eye, EyeOff } from "lucide-react";
+
 import { loginUser } from "../../../http";
 import { login, RemberMe } from "../../../redux/slices/login";
 
@@ -13,6 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [rememberMe, setRememberMe] = useState(false);
+const [showPassword, setShowPassword] = useState(false);
 
   // ✅ Prefill if RememberMe active
   const [initialValues, setInitialValues] = useState({
@@ -113,24 +116,28 @@ const Login = () => {
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block font-medium text-gray-700 text-sm mb-1">
-                Password
-              </label>
-              <Field
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300
-                           focus:ring-2 focus:ring-orange-500 focus:outline-none
-                           text-sm sm:text-base"
-              />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-xs mt-1"
-              />
-            </div>
+           <div className="relative">
+  <Field
+    type={showPassword ? "text" : "password"}
+    name="password"
+    placeholder="Enter your password"
+    className="w-full px-4 py-2 rounded-lg border border-gray-300
+               focus:ring-2 focus:ring-orange-500 focus:outline-none
+               text-sm sm:text-base pr-10" // add padding-right for eye
+  />
+  <div
+    className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-500"
+    onClick={() => setShowPassword((prev) => !prev)}
+  >
+    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+  </div>
+</div>
+<ErrorMessage
+  name="password"
+  component="div"
+  className="text-red-500 text-xs mt-1"
+/>
+
 
             {/* Remember Me + Forgot Password */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm mt-2">
