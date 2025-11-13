@@ -1,125 +1,117 @@
+// src/pages/ResetPassword.jsx
 import React, { useState } from "react";
-import { Lock, Eye, EyeOff } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { changepassword } from "../http";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { resetPassword } from "../http";
 import { toast } from "react-toastify";
-const ChangePassword = ({ onChangePassword }) => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
- 
-  const { mutate,isError } = useMutation({
-    mutationFn: changepassword,
-    onSuccess: (response) => {
-      toast.success("Password changed successfully!");
-    }
-    ,onError: (error) => {
-      toast.error("Error changing password: " + error.response?.data?.message || error.message);
-    }
-  });
+import { useMutation } from "@tanstack/react-query";
 
-  
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+const ResetPassword = () => {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token"); // token from reset email link
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: resetPassword,
+    onSuccess: (res) => {
+      toast.success("✅ Password has been successfully reset!");
+      navigate("/login");
+    },
+    onError: (err) => {
+      const message =
+        err?.response?.data?.message || "❌ Failed to reset password";
+      toast.error(message);
+      console.error("Reset Password Error:", err);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      toast.error("New password ani Confirm password same asava!");
+
+    if (password !== confirmPassword) {
+      toast.error("❌ Passwords do not match!");
       return;
     }
-    mutate({old_password :currentPassword, new_password:newPassword,new_password_confirmation: confirmPassword});
-    onChangePassword?.({ currentPassword, newPassword });
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+
+    if (!token) {
+      toast.error("❌ Invalid or missing token!");
+      return;
+    }
+
+    // ✅ Send correct structure for backend
+    mutate({
+      token: token,
+      password: password,
+      password_confirmation: confirmPassword,
+    });
   };
-  
- 
-  const inputBase =
-    "w-full pl-11 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none text-gray-700";
 
   return (
-    <div className="min-h-screen flex items-center justify-center  p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md space-y-5 border border-gray-200"
-      >
-        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-2">
-          Change Password
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md border border-gray-200">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
+          Reset Password
         </h2>
-        <p className="text-sm text-gray-500 text-center mb-6">
-          Update your password securely
+        <p className="text-center text-gray-600 text-sm sm:text-base mb-6">
+          Enter your new password below.
         </p>
 
-        {/* Current Password */}
-        <div className="relative">
-          <Lock className="absolute left-3 top-2.5 text-gray-400" size={18} />
-          <input
-            type={showCurrent ? "text" : "password"}
-            placeholder="Current password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className={inputBase}
-          />
-          <button
-            type="button"
-            onClick={() => setShowCurrent((s) => !s)}
-            className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-          >
-            {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium text-gray-700 text-sm mb-1">
+              New Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 rounded-lg border border-gray-300
+                         focus:ring-2 focus:ring-orange-500 focus:outline-none
+                         text-sm sm:text-base"
+            />
+          </div>
 
-        {/* New Password */}
-        <div className="relative">
-          <Lock className="absolute left-3 top-2.5 text-gray-400" size={18} />
-          <input
-            type={showNew ? "text" : "password"}
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className={inputBase}
-          />
-          <button
-            type="button"
-            onClick={() => setShowNew((s) => !s)}
-            className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-          >
-            {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
+          <div>
+            <label className="block font-medium text-gray-700 text-sm mb-1">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full px-4 py-2 rounded-lg border border-gray-300
+                         focus:ring-2 focus:ring-orange-500 focus:outline-none
+                         text-sm sm:text-base"
+            />
+          </div>
 
-        {/* Confirm Password */}
-        <div className="relative">
-          <Lock className="absolute left-3 top-2.5 text-gray-400" size={18} />
-          <input
-            type={showConfirm ? "text" : "password"}
-            placeholder="Confirm new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className={inputBase}
-          />
           <button
-            type="button"
-            onClick={() => setShowConfirm((s) => !s)}
-            className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+            type="submit"
+            disabled={isPending}
+            className="w-full bg-orange-500 text-white py-2 rounded-lg mt-4
+                       hover:bg-orange-600 transition duration-200 font-semibold text-sm sm:text-base"
           >
-            {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            {isPending ? "Resetting..." : "Reset Password"}
           </button>
-        </div>
+        </form>
 
-        <button
-          type="submit"
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded-lg shadow-md transition-all duration-300"
-         
-        >
-          Update Password
-        </button>
-      </form>
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Go back to{" "}
+          <Link
+            to="/login"
+            className="text-orange-500 hover:text-orange-600 transition-colors"
+          >
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
 
-export default ChangePassword;
+export default ResetPassword;

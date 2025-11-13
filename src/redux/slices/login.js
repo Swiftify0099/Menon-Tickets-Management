@@ -4,7 +4,6 @@ const initialState = {
   isLoggedIn: false,
   token: null,
   user: null,
-  profile: null,
 };
 
 const loginSlice = createSlice({
@@ -19,20 +18,22 @@ const loginSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
     },
+
     logout: (state) => {
       state.isLoggedIn = false;
       state.user = null;
       state.token = null;
-      state.profile = null;
       localStorage.removeItem("user");
       localStorage.removeItem("token");
-      localStorage.removeItem("profile");
     },
+
+    // ✅ FIXED HERE — updates `user`, not `profile`
     updateUser: (state, action) => {
-      const updatedProfile = { ...state.profile, ...action.payload };
-      state.profile = updatedProfile;
-      localStorage.setItem("profile", JSON.stringify(updatedProfile));
+      const updatedUser = { ...state.user, ...action.payload };
+      state.user = updatedUser;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
     },
+
     RemberMe: (state, action) => {
       const { ReEmail, RePassword, Remember } = action.payload;
       if (Remember) {

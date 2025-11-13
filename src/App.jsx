@@ -57,6 +57,7 @@ const router = createBrowserRouter([
       { path: "takits-details/:id", element: <TakitsDetails /> },
       { path: "tickets", element: <Tickets /> },
       { path: "settings", element: <Settings /> },
+      { path: "/change-password", element: <ChangePassword /> },
       {
         path: "profile",
         element: (
@@ -69,7 +70,6 @@ const router = createBrowserRouter([
   },
   { path: "/login", element: <Login /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
-  { path: "/change-password", element: <ChangePassword /> },
   { path: "/reset-password", element: <ResetPassword /> },
 
   // ✅ 404 Page
