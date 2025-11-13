@@ -174,7 +174,7 @@ const [showPassword, setShowPassword] = useState(false);
         </Formik>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
+        {/* <p className="text-center text-sm text-gray-600 mt-6">
           Don’t have an account?{" "}
           <Link
             to="/signup"
@@ -182,7 +182,9 @@ const [showPassword, setShowPassword] = useState(false);
           >
             Sign Up
           </Link>
-        </p>
+        </p> */}
+
+        
       </div>
     </div>
   );
