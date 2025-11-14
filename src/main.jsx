@@ -24,18 +24,7 @@ createRoot(document.getElementById('root')).render(
     <QueryClientProvider client={queryClient}>
       <App />
       <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        limit={1}
-        toastClassName="font-medium text-sm"
+      
       />
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

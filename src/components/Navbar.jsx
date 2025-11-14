@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Lock, Home } from "lucide-react";
 import Logo from "../assets/menon-logo.png";
 
+
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState(() => {
@@ -55,9 +56,13 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('persist:login');
+    localStorage.removeItem('dashboard-tickets');
     setUser(null);
     navigate("/login");
+   
   };
 
   const handleChangePassword = () => {
@@ -77,10 +82,13 @@ const Navbar = () => {
           alt="Logo"
           className="h-12 w-12 object-contain drop-shadow-sm"
         />
-        <h1 className="text-2xl md:text-3xl font-extrabold text-orange-500 tracking-wide drop-shadow-md">
-          Menon Ticket System
+        <h1 className="text-lg md:text-lg hidden md:block font-semibold text-orange-500 tracking-wide drop-shadow-md">
+         menon and menon limited 
         </h1>
       </div>
+      <h1 className="text-lg md:text-lg font-semibold text-orange-500 tracking-wide drop-shadow-md">
+      Ticket System
+        </h1>
 
       {/* Right - Profile */}
       <div className="relative" ref={dropdownRef}>
@@ -111,21 +119,21 @@ const Navbar = () => {
               onClick={() => setDropdownOpen(false)}
             >
               <User size={16} />
-              <span>Profile</span>
+              <span>Profile / वैयक्तिक माहिती</span>
             </Link>
             <button
               onClick={handleChangePassword}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-all duration-200 w-full text-left"
             >
               <Lock size={16} />
-              <span>Change Password</span>
+              <span>Change Password / पासवर्ड बदला</span>
             </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 w-full text-left mt-1 border-t border-gray-100 pt-2"
             >
               <LogOut size={16} />
-              <span>Logout</span>
+              <span>Logout / खाते बंद करा</span>
             </button>
           </div>
         )}

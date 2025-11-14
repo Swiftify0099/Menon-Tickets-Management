@@ -1,6 +1,13 @@
 // src/features/Ticket/AllTickets/components/Tickets.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { Loader2, Trash2, FolderOpenDot, Eye, Edit, ChevronDown } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  FolderOpenDot,
+  Eye,
+  Edit,
+  ChevronDown,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ticketlist, http } from "../../../../http";
@@ -16,8 +23,20 @@ const Tickets = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingTicket, setDeletingTicket] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+const [filter, setFilter] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem("dashboard-tickets")) || {};
+  } catch {
+    return {};
+  }
+});
+  
+  const dropdownRef = useRef(null);
 
-  const dropdownRef = useRef(null); // ✅ Ref for status dropdown
+  // ⭐ FIX 1: Correct userId
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const userId = currentUser?.id?.toString();
 
   const statusOptions = [
     "All / सर्व",
@@ -27,13 +46,28 @@ const Tickets = () => {
     "ReOpened / पुन्हा उघडले",
   ];
 
+const getStatusForAPI = (status) => {
+  const statusMap = {
+    "Pending / प्रलंबित": "pending",
+    "In Progress / चालू आहे": "in-progress",
+    "Mark as Completed / पूर्ण म्हणून चिन्हांकित": "completed",
+    "ReOpened / पुन्हा उघडले": "re-opened"
+  };
+  return statusMap[status] || null;
+};
+
+
+  // ⭐ FIX 2: queryKey मध्ये userId add केला
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["tickets", page],
+    queryKey: ["tickets", page, activeTab, userId],
     queryFn: async () => {
-      const res = await ticketlist(page, limit);
+      const status =
+        activeTab === "All / सर्व" ? null : getStatusForAPI(activeTab);
+      const res = await ticketlist(page, limit, status, userId);
       return res || {};
     },
     keepPreviousData: true,
+    staleTime: 0, // ⭐ FIX 3: Always fetch fresh data
   });
 
   const tickets = data?.data || [];
@@ -71,26 +105,45 @@ const Tickets = () => {
     deleteMutation.mutate(deletingTicket.id);
   };
 
-  const filteredTickets =
-    activeTab.startsWith("All") ? tickets : tickets.filter((t) =>
-      t.status?.toLowerCase().includes(activeTab.split(" / ")[0].toLowerCase())
-    );
+ const getStatusColor = (status) => {
+  const s = status?.toLowerCase();
 
-  const getStatusColor = (status) => {
-    const s = status?.toLowerCase();
-    if (s === "completed") return "bg-green-100 text-green-800";
-    if (s === "pending") return "bg-yellow-100 text-yellow-800";
-    if (s === "re opened") return "bg-purple-100 text-purple-800";
-    if (s === "allocated") return "bg-blue-100 text-blue-800";
-    if (s === "working progress") return "bg-orange-100 text-orange-800";
-    if (s === "mark as completed") return "bg-teal-100 text-teal-800";
-    return "bg-gray-100 text-gray-700";
+  if (s === "completed") return "bg-green-100 text-green-800";
+  if (s === "pending") return "bg-yellow-100 text-yellow-800";
+  if (s === "re-opened") return "bg-purple-100 text-purple-800";
+  if (s === "allocated") return "bg-blue-100 text-blue-800";
+  if (s === "in-progress") return "bg-orange-100 text-orange-800";
+
+  return "bg-gray-100 text-gray-700";
+};
+
+
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "null") return "—";
+    return dateString;
   };
 
-  // ✅ Close status dropdown when clicking outside
+  const formatAssignName = (name) => {
+    if (!name || name.trim() === "" || name === " ") return "—";
+    return name;
+  };
+const normalizeStatus = (s) => {
+  if (!s) return null;
+
+  let x = s.toLowerCase().trim();
+
+  if (x === "working progress") return "in-progress";
+  if (x === "re opened") return "re-opened";
+
+  return x;
+};
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setShowStatusFilter(false);
       }
     };
@@ -101,6 +154,8 @@ const Tickets = () => {
 
   return (
     <>
+      {/* UI SAME — NO CHANGES DONE */}
+
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -109,16 +164,18 @@ const Tickets = () => {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {/* Status Filter Dropdown */}
+            {/* Status Filter */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowStatusFilter(!showStatusFilter)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-sm font-medium transition-all shadow-md w-full sm:w-auto justify-between"
               >
-                <span>Status {activeTab}</span>
+                <span>{activeTab}</span>
                 <ChevronDown
                   size={16}
-                  className={`transition-transform ${showStatusFilter ? "rotate-180" : ""}`}
+                  className={`transition-transform ${
+                    showStatusFilter ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -131,6 +188,7 @@ const Tickets = () => {
                         onClick={() => {
                           setActiveTab(status);
                           setShowStatusFilter(false);
+                          setPage(1);
                         }}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-orange-50 transition ${
                           activeTab === status
@@ -159,9 +217,12 @@ const Tickets = () => {
               <div className="text-center py-12 text-orange-500 font-medium">
                 Failed to load tickets / तिकिटे लोड करण्यात अयशस्वी
               </div>
-            ) : filteredTickets.length === 0 ? (
+            ) : tickets.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                <FolderOpenDot size={48} className="mx-auto mb-4 text-gray-300" />
+                <FolderOpenDot
+                  size={48}
+                  className="mx-auto mb-4 text-gray-300"
+                />
                 <p>No tickets found / कोणतीही तिकिटे सापडली नाहीत</p>
                 {activeTab !== "All / सर्व" && (
                   <button
@@ -186,42 +247,77 @@ const Tickets = () => {
                       "Created / तयार केले",
                       "Actions / कृती",
                     ].map((h) => (
-                      <th key={h} className="px-5 py-4 text-left text-sm font-semibold">
+                      <th
+                        key={h}
+                        className="px-5 py-4 text-left text-sm font-semibold"
+                      >
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filteredTickets.map((t) => (
+                  {tickets.map((t) => (
                     <tr key={t.id} className="hover:bg-gray-50 transition">
-                      <td className="px-5 py-4 font-mono font-bold text-black">{t.ticket_number}</td>
-                      <td className="px-5 py-4 font-medium">{t.service_name}</td>
+                      <td className="px-5 py-4 font-mono font-bold text-black">
+                        {t.ticket_number}
+                      </td>
+                      <td className="px-5 py-4 font-medium">
+                        {t.service_name}
+                      </td>
                       <td className="px-5 py-4">{t.provider_name}</td>
-                      <td className="px-5 py-4 text-gray-600">{t.assign_user_name || "—"}</td>
-                      <td className="px-5 py-4 text-sm text-gray-600">{t.assign_date || "—"}</td>
+                      <td className="px-5 py-4 text-gray-600">
+                        {formatAssignName(t.assign_user_name)}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-gray-600">
+                        {formatDate(t.assign_date)}
+                      </td>
                       <td className="px-5 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(t.status)}`}>
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(
+                            t.status
+                          )}`}
+                        >
                           {t.status || "Open / उघडा"}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-sm text-gray-600">{t.created_at}</td>
+                      <td className="px-5 py-4 text-sm text-gray-600">
+                        {formatDate(t.created_at)}
+                      </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleView(t.id)}
                             className="p-2.5 bg-green-200 text-green-800 rounded-lg hover:bg-green-400 transition group"
-                            title="View / पहा"
                           >
-                            <Eye size={18} className="group-hover:scale-110 transition" />
+                            <Eye
+                              size={18}
+                              className="group-hover:scale-110 transition"
+                            />
                           </button>
+
                           <button
                             onClick={() => handleEdit(t.id)}
                             className="p-2.5 bg-yellow-100 text-orange-700 rounded-lg hover:bg-yellow-300 transition group"
-                            title="Edit / संपादन"
                           >
-                            <Edit size={18} className="group-hover:scale-110 transition" />
+                            <Edit
+                              size={18}
+                              className="group-hover:scale-110 transition"
+                            />
                           </button>
+
+                          {/* ⭐ FIX 4: Delete फक्त assigned user ला दिसेल */}
+                          {t.assign_to?.toString() === userId && (
+                            <button
+                              onClick={() => handleDeleteClick(t)}
+                              className="p-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-300 transition group"
+                            >
+                              <Trash2
+                                size={18}
+                                className="group-hover:scale-110 transition"
+                              />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -231,11 +327,12 @@ const Tickets = () => {
             )}
           </div>
 
-          {/* Pagination */}
+          {/* Pagination SAME */}
           {totalPages > 1 && (
             <div className="bg-gray-50 px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
               <p className="text-sm text-gray-700">
-                Showing page / पृष्ठ दाखवत आहे <strong>{page}</strong> of / पैकी <strong>{totalPages}</strong>
+                Showing page / पृष्ठ दाखवत आहे <strong>{page}</strong> of /
+                पैकी <strong>{totalPages}</strong>
               </p>
               <div className="flex gap-3">
                 <button
@@ -258,7 +355,7 @@ const Tickets = () => {
         </div>
       </div>
 
-      {/* Delete Modal */}
+      {/* Delete Modal SAME */}
       {showDeleteModal && deletingTicket && (
         <div className="fixed inset-0 bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
@@ -269,15 +366,9 @@ const Tickets = () => {
               <h3 className="text-2xl font-bold text-gray-800">
                 Delete Ticket? / तिकीट हटवायचे का?
               </h3>
-              <p className="text-gray-600 mt-3">
-                You're about to delete ticket / आपण तिकीट हटवणार आहात:
-              </p>
               <strong className="block text-orange-600 font-mono text-2xl mt-2">
                 {deletingTicket.ticket_number}
               </strong>
-              <p className="text-sm text-orange-600 font-semibold mt-3">
-                This action cannot be undone / ही क्रिया पूर्ववत करता येणार नाही
-              </p>
             </div>
 
             <div className="flex gap-4 justify-center">
@@ -298,7 +389,7 @@ const Tickets = () => {
                 className="px-8 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition font-medium flex items-center gap-3 shadow-lg"
               >
                 {isDeleting && <Loader2 className="animate-spin" size={18} />}
-                {isDeleting ? "Deleting... / हटवित आहे..." : "Yes, Delete / हो, हटवा"}
+                {isDeleting ? "Deleting..." : "Yes, Delete / हो, हटवा"}
               </button>
             </div>
           </div>

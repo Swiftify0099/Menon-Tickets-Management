@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+import { QueryClient } from "@tanstack/react-query";
 const initialState = {
   isLoggedIn: false,
   token: null,
@@ -24,6 +24,7 @@ const loginSlice = createSlice({
       state.user = null;
       state.token = null;
       state.profile = null;
+       QueryClient.clear();
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       localStorage.removeItem("profile");

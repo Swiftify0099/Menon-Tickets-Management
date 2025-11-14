@@ -160,7 +160,7 @@ const UpdateTicket = () => {
       }));
 
       setPreviewFiles(prev => [...prev, ...newPreviews]);
-      toast.success(`${validFiles.length} file(s) added successfully`);
+      toast.success(`${validFiles.length} file(s) added successfully / यशस्वीरित्या जोडले!`);
     }
 
     // Reset file input
@@ -213,7 +213,7 @@ const UpdateTicket = () => {
         // Show success toast with document name
         toast.success(
           <div>
-            <p className="font-medium">Document deleted successfully</p>
+            <p className="font-medium">Document deleted successfully / दस्तऐवज यशस्वीरित्या हटवण्यात आला!</p>
           </div>,
           {
             position: "top-right",
@@ -245,7 +245,7 @@ const UpdateTicket = () => {
       console.error('Error removing document:', error);
       console.error('Error details:', error.response); // Debug log
 
-      let errorMessage = 'Error deleting document. Please try again.';
+      let errorMessage = 'Error deleting document. Please try again. / दस्तऐवज हटवताना त्रुटी झाली. कृपया पुन्हा प्रयत्न करा!';
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.response?.data?.error) {
@@ -256,7 +256,7 @@ const UpdateTicket = () => {
 
       toast.error(
         <div>
-          <p className="font-medium">Delete Failed</p>
+          <p className="font-medium">Delete Failed हटवण्यात अयश</p>
           <p className="text-sm text-gray-600">{errorMessage}</p>
         </div>
       );
@@ -299,9 +299,9 @@ const UpdateTicket = () => {
     const link = document.document_url;
     if (link) {
       window.open(link, '_blank');
-      toast.info('Opening document for download...');
+      toast.info('Document has been downloaded successfully / दस्तऐवज यशस्वीरित्या डाउनलोड करण्यात आला');
     } else {
-      toast.error('Document URL not found');
+      toast.error('Document URL not found / दस्तऐवजाची URL सापडली नाही!');
     }
   };
 
@@ -388,7 +388,7 @@ const UpdateTicket = () => {
 
       if (isSuccess) {
         setSuccess(true);
-        toast.success('Ticket updated successfully!');
+        toast.success('Ticket updated successfully! / तिकीट यशस्वीरित्या अपडेट केले गेले!');
         setTimeout(() => {
           navigate(`/ticket/${id}`);
         }, 2000);

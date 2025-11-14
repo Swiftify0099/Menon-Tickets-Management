@@ -1,4 +1,4 @@
-
+// src/http.js
 import axios from "axios";
 
 export const http = axios.create({
@@ -24,7 +24,7 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config.url.includes("login") && window.location.pathname !== "/login") {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/login";
@@ -32,7 +32,6 @@ http.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export const loginUser = async (loginData) => {
   const resp = await http.post("login", loginData);
@@ -92,8 +91,6 @@ export const getTicketDetails = async (ticketId) => {
   return resp.data;
 };
 
-
-
 export const verifyResetToken = async (token) => {
   const resp = await http.post("password/verify", { reset_token: token });
   return resp.data;
@@ -104,18 +101,27 @@ export const resetPassword = async (data) => {
   return resp.data;
 };
 
-
 export const forgotPassword = async (data) => {
   const resp = await http.post("password/reset", data);
   return resp.data;
 };
 
-export const ticketlist = async (page = 1, limit = 10) => {
+export const ticketlist = async (page = 1, limit = 10, status = null, user_id = null) => {
   const offset = (page - 1) * limit;
+
+  // Get user ID from localStorage if not provided
+  let finalUserId = user_id;
+  if (!finalUserId) {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    finalUserId = currentUser?.id;
+  }
+
   const body = {
-    limit: String(limit),
-    offset: String(offset),
+    limit,
+    offset,
     search: "",
+    user_id: finalUserId, // Use the user ID
+    ...(status && { status }),
   };
 
   const resp = await http.post("ticket/list", body);
@@ -138,6 +144,3 @@ export const DashbordCount = async () => {
   const resp = await http.get("dashboard/count");
   return resp.data;
 }
-
-
-

@@ -1,5 +1,5 @@
 // src/pages/TicketCreate.jsx
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -18,19 +18,20 @@ import { useProviders } from "../hooks/UseProviders";
 import { useServices } from "../hooks/UseServices";
 import { useTicketCreate } from "../hooks/UseTicketCreate";
 import { useFileUpload } from "../hooks/UseFileUpload";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const TicketCreate = () => {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    provider_id: "",
-    service_id: "",
-    ticket_details: "",
-  });
-
   const { providers, loading: loadingProviders } = useProviders();
-  const { servicesList, loading: loadingServices } = useServices(form.provider_id);
-  const { loading, success, ticketNumber, submit } = useTicketCreate();
+  const [selectedProvider, setSelectedProvider] = React.useState(null);
+  const [selectedService, setSelectedService] = React.useState(null);
+
+  const { servicesList, loading: loadingServices } = useServices(
+    selectedProvider?.value || ""
+  );
+  const { loading, submit } = useTicketCreate();
   const { documents, previewFiles, addFiles, removeFile } = useFileUpload();
 
   const providerOptions = useMemo(
@@ -51,42 +52,23 @@ const TicketCreate = () => {
     [servicesList]
   );
 
-  const handleProviderChange = (selected) => {
-    setForm((prev) => ({
-      ...prev,
-      provider_id: selected?.value || "",
-      service_id: "",
-    }));
-  };
+  const validationSchema = Yup.object({
+    provider_id: Yup.string().required(
+      "Please select Provider / कृपया प्रदाता निवडा"
+    ),
+    service_id: Yup.string().required(
+      "Please select Service / कृपया सेवा निवडा"
+    ),
+    ticket_details: Yup.string()
+      .required("Please describe your issue / कृपया आपली समस्या वर्णन करा")
+      .min(10, "Minimum 10 characters required / किमान 10 अक्षरे आवश्यक आहेत"),
+  });
 
-  const handleServiceChange = (selected) => {
-    setForm((prev) => ({
-      ...prev,
-      service_id: selected?.value || "",
-    }));
-  };
-
-  const handleTextChange = (e) => {
-    setForm((prev) => ({ ...prev, ticket_details: e.target.value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!form.provider_id || !form.service_id) {
-      toast.error("Please select Provider and Service / कृपया प्रदाता आणि सेवा निवडा");
-      return;
-    }
-
-    if (!form.ticket_details.trim()) {
-      toast.error("Please describe your issue / कृपया आपली समस्या वर्णन करा");
-      return;
-    }
-
+  const handleSubmit = async (values) => {
     const formData = new FormData();
-    formData.append("service_provider_id", form.provider_id);
-    formData.append("service_id", form.service_id);
-    formData.append("ticket_details", form.ticket_details);
+    formData.append("service_provider_id", values.provider_id);
+    formData.append("service_id", values.service_id);
+    formData.append("ticket_details", values.ticket_details);
     documents.forEach((file) => formData.append("documents[]", file));
 
     await submit(formData, (data) => {
@@ -95,8 +77,8 @@ const TicketCreate = () => {
         ticketNo: data.ticket_number,
         type: "Support",
         createdAt: new Date().toLocaleDateString("en-GB"),
-        service: servicesList.find((s) => s.id == form.service_id)?.service_name,
-        provider: providers.find((p) => p.id == form.provider_id)?.provider_name,
+        service: servicesList.find((s) => s.id == values.service_id)?.service_name,
+        provider: providers.find((p) => p.id == values.provider_id)?.provider_name,
         status: "In-Progress",
       };
 
@@ -150,7 +132,6 @@ const TicketCreate = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6">
       <ToastContainer />
-
       <div className="max-w-8xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -174,139 +155,166 @@ const TicketCreate = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* LEFT */}
-              <div className="space-y-6">
-                {/* Service Provider */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Service Provider / सेवा प्रदाता <span className="text-red-500">*</span>
-                  </label>
-                  {loadingProviders ? (
-                    <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
-                  ) : (
-                    <Select
-                      options={providerOptions}
-                      value={providerOptions.find((o) => o.value === form.provider_id) || null}
-                      onChange={handleProviderChange}
-                      placeholder="Search provider... / प्रदाता शोधा..."
-                      isSearchable
-                      isClearable
-                      styles={selectStyles}
-                    />
-                  )}
-                </div>
-
-                {/* Service */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Service / सेवा <span className="text-red-500">*</span>
-                  </label>
-                  {loadingServices ? (
-                    <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
-                  ) : serviceOptions.length === 0 ? (
-                    <div className="px-4 py-3 bg-gray-50 border border-dashed rounded-lg text-gray-500 text-start text-sm">
-                      {form.provider_id
-                        ? "No services available / कोणतीही सेवा उपलब्ध नाही"
-                        : "Select provider first / प्रथम प्रदाता निवडा"}
+          <Formik
+            initialValues={{
+              provider_id: "",
+              service_id: "",
+              ticket_details: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, setFieldValue, errors, touched }) => (
+              <Form className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* LEFT */}
+                  <div className="space-y-6">
+                    {/* Service Provider */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Service Provider / सेवा प्रदाता <span className="text-red-500">*</span>
+                      </label>
+                      {loadingProviders ? (
+                        <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
+                      ) : (
+                        <Select
+                          options={providerOptions}
+                          value={providerOptions.find((o) => o.value === values.provider_id) || null}
+                          onChange={(option) => {
+                            setSelectedProvider(option);
+                            setSelectedService(null);
+                            setFieldValue("provider_id", option?.value || "");
+                            setFieldValue("service_id", "");
+                          }}
+                          placeholder="Search provider... / प्रदाता शोधा..."
+                          isSearchable
+                          isClearable
+                          styles={selectStyles}
+                        />
+                      )}
+                      {errors.provider_id && touched.provider_id && (
+                        <p className="text-red-500 text-xs mt-1">{errors.provider_id}</p>
+                      )}
                     </div>
-                  ) : (
-                    <Select
-                      options={serviceOptions}
-                      value={serviceOptions.find((o) => o.value === form.service_id) || null}
-                      onChange={handleServiceChange}
-                      placeholder="Search service... / सेवा शोधा..."
-                      isSearchable
-                      isClearable
-                      styles={selectStyles}
-                    />
-                  )}
-                </div>
 
-                {/* File Upload */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Attach Documents / दस्तऐवज जोडा
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-400 transition cursor-pointer">
-                    <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                    <label className="cursor-pointer mt-2 block">
-                      <span className="text-sm font-medium text-orange-600 hover:text-orange-700">
-                        Click to upload files / फाईल अपलोड करण्यासाठी क्लिक करा
-                      </span>
-                      <input
-                        type="file"
-                        multiple
-                        onChange={addFiles}
-                        className="hidden"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                      />
-                    </label>
-                    <p className="text-gray-500 text-xs mt-1">
-                      PNG, JPG, PDF, DOC • Max 10 MB / कमाल 10 MB
-                    </p>
+                    {/* Service */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Service / सेवा <span className="text-red-500">*</span>
+                      </label>
+                      {loadingServices ? (
+                        <div className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
+                      ) : serviceOptions.length === 0 ? (
+                        <div className="px-4 py-3 bg-gray-50 border border-dashed rounded-lg text-gray-500 text-start text-sm">
+                          {values.provider_id
+                            ? "No services available / कोणतीही सेवा उपलब्ध नाही"
+                            : "Select provider first / प्रथम प्रदाता निवडा"}
+                        </div>
+                      ) : (
+                        <Select
+                          options={serviceOptions}
+                          value={serviceOptions.find((o) => o.value === values.service_id) || null}
+                          onChange={(option) => {
+                            setSelectedService(option);
+                            setFieldValue("service_id", option?.value || "");
+                          }}
+                          placeholder="Search service... / सेवा शोधा..."
+                          isSearchable
+                          isClearable
+                          styles={selectStyles}
+                        />
+                      )}
+                      {errors.service_id && touched.service_id && (
+                        <p className="text-red-500 text-xs mt-1">{errors.service_id}</p>
+                      )}
+                    </div>
+
+                    {/* File Upload */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Attach Documents / दस्तऐवज जोडा
+                      </label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-400 transition cursor-pointer">
+                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                        <label className="cursor-pointer mt-2 block">
+                          <span className="text-sm font-medium text-orange-600 hover:text-orange-700">
+                            Click to upload files / फाईल अपलोड करण्यासाठी क्लिक करा
+                          </span>
+                          <input
+                            type="file"
+                            multiple
+                            onChange={addFiles}
+                            className="hidden"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                          />
+                        </label>
+                        <p className="text-gray-500 text-xs mt-1">
+                          PNG, JPG, PDF, DOC • Max 10 MB / कमाल 10 MB
+                        </p>
+                      </div>
+
+                      {previewFiles.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-xs font-medium text-gray-600">
+                            {previewFiles.length} file(s) attached / फाईल जोडल्या
+                          </p>
+                          {previewFiles.map((file, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded border">
+                                  {getFileIcon(file.name)}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-medium text-gray-800 truncate">
+                                    {file.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">{file.size}</p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeFile(i)}
+                                className="text-red-500 hover:bg-red-50 p-1 rounded"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {previewFiles.length > 0 && (
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs font-medium text-gray-600">
-                        {previewFiles.length} file(s) attached / फाईल जोडल्या
+                  {/* RIGHT */}
+                  <div className="space-y-6">
+                    {/* Issue Description */}
+                    <div className="h-full flex flex-col">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Issue Description / समस्या वर्णन{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <Field
+                        as="textarea"
+                        name="ticket_details"
+                        placeholder="Please describe your issue... / कृपया आपली समस्या वर्णन करा..."
+                        className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition min-h-[200px]"
+                        minLength={10}
+                      />
+                      <ErrorMessage
+                        name="ticket_details"
+                        component="p"
+                        className="text-red-500 text-xs mt-1"
+                      />
+                      <p className="text-xs text-gray-500 mt-1 text-right">
+                        {values.ticket_details.length} / 1000
                       </p>
-                      {previewFiles.map((file, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white rounded border">
-                              {getFileIcon(file.name)}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-800 truncate">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">{file.size}</p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeFile(i)}
-                            className="text-red-500 hover:bg-red-50 p-1 rounded"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ))}
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* RIGHT */}
-              <div className="space-y-6">
-                {/* Issue Description */}
-                <div className="h-full flex flex-col">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Issue Description / समस्या वर्णन{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="ticket_details"
-                    value={form.ticket_details}
-                    onChange={handleTextChange}
-                    required
-                    placeholder="Please describe your issue... / कृपया आपली समस्या वर्णन करा..."
-                    className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition min-h-[200px]"
-                    minLength={10}
-                  />
-                  <p className="text-xs text-gray-500 mt-1 text-right">
-                    {form.ticket_details.length} / 1000
-                  </p>
+                  </div>
                 </div>
 
-              </div>
-            </div>
                 {/* Action Buttons */}
                 <div className="flex justify-end mt-2 gap-4 pt-4">
                   <button
@@ -335,7 +343,9 @@ const TicketCreate = () => {
                     )}
                   </button>
                 </div>
-          </form>
+              </Form>
+            )}
+          </Formik>
         </div>
       </div>
     </div>

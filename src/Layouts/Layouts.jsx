@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import { ToastContainer } from "react-toastify";
 
 
 const AppLayout = () => {
@@ -17,7 +18,7 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      
+      <ToastContainer/>
       <div className="flex flex-1">
      
         

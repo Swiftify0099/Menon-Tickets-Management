@@ -8,7 +8,7 @@ import { forgotPassword } from "../../http"; // ✅ correct import
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-const navigate = useNavigate();
+  const navigate = useNavigate();
   // ✅ UseMutation for API call
   const { mutate, isPending } = useMutation({
     mutationFn: forgotPassword,

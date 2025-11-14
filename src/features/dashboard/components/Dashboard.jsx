@@ -115,88 +115,52 @@ const Dashboard = () => {
       </div>
 
       {/* Dashboard Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-        {/* Ticket Stats */}
-        {[
-          { title: "Tickets / तिकिटे", color: "gray", value: stats.total },
-          {
-            title: "Completed / पूर्ण",
-            color: "green",
-            value: stats.completed,
-          },
-          {
-            title: "In Progress / प्रगतीत",
-            color: "blue",
-            value: stats.inProgress,
-          },
-          {
-            title: "Under Verification / तपासणीखाली",
-            color: "orange",
-            value: stats.underverification,
-          },
-        ].map((item, idx) => (
-          <div
-            key={idx}
-            className={`rounded-xl shadow-lg border border-${item.color}-200 p-6 text-center hover:shadow-xl transition bg-${item.color}-50`}
-          >
-            <h3
-              className={`text-sm font-semibold text-${item.color}-600 uppercase tracking-wide`}
-            >
-              {item.title}
-            </h3>
-            {countLoading ? (
-              <Skeleton className="h-10 w-20 mx-auto mt-3" />
-            ) : (
-              <p
-                className={`text-4xl font-extrabold text-${item.color}-800 mt-3`}
-              >
-                {item.value}
-              </p>
-            )}
-          </div>
-        ))}
+     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mt-6">
 
-        {/* Create New */}
-        <button
-          onClick={() => navigate("/new-takits")}
-          className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center transition"
-        >
-          <h3 className="text-sm font-semibold uppercase tracking-wide">
-            Create New / नवीन तयार करा
-          </h3>
-          <Plus className="mt-3" size={28} />
-        </button>
-      </div>
+  {[
+    { title: "Tickets / तिकिटे", color: "gray", value: stats.total },
+    { title: "Completed / पूर्ण तिकिटे", color: "green", value: stats.completed },
+    { title: "In Progress / प्रगतीत तिकिटे", color: "blue", value: stats.inProgress },
+    { title: "Pending / प्रलंबित तिकिटे", color: "yellow", value: stats.inProgress},
+    { title: "Under Verification / तपासणीखाली तिकिटे", color: "orange", value: stats.underverification },
+  ].map((item, idx) => (
+    <div
+      key={idx}
+      className={`rounded-2xl border border-${item.color}-200 bg-white p-4 
+        shadow-md hover:shadow-xl hover:-translate-y-1 
+        transition-all duration-300 flex flex-col items-center justify-between`}
+    >
+      <h3 className={`text-sm font-semibold text-${item.color}-600 uppercase tracking-wide text-center`}>
+        {item.title}
+      </h3>
 
-      {/* Pagination */}
-      <div className="space-y-7 p-4">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          {totalPages > 1 && (
-            <div className="bg-gray-50 px-4 sm:px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-3">
-              <p className="text-sm text-gray-700">
-                Page / पृष्ठ <strong>{page}</strong> of / पैकी{" "}
-                <strong>{totalPages}</strong>
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-4 py-2 border border-orange-300 text-orange-700 rounded-lg disabled:opacity-50 hover:bg-orange-50 text-sm"
-                >
-                  Previous / मागील
-                </button>
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={page === totalPages}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 text-sm"
-                >
-                  Next / पुढील
-                </button>
-              </div>
-            </div>
-          )}
+      {countLoading ? (
+        <div className="mt-2s flex justify-center w-full">
+          <Skeleton className="h-10 w-20" />
         </div>
-      </div>
+      ) : (
+        <p className={`text-4xl font-extrabold text-${item.color}-700 mt-1 text-center`}>
+          {item.value}
+        </p>
+      )}
+    </div>
+  ))}
+
+  {/* Create New */}
+  <button
+    onClick={() => navigate("/new-takits")}
+    className="rounded-2xl bg-orange-600 hover:bg-orange-700 text-white 
+      p-6 text-center flex flex-col items-center justify-center 
+      shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+  >
+    <h3 className="text-sm font-semibold uppercase tracking-wide text-center">
+      Create New / नवीन तयार करा
+    </h3>
+    <Plus className="mt-3" size={28} />
+  </button>
+
+</div>
+
 
       {/* Delete Modal */}
       {showDeleteModal && deletingTicket && (
