@@ -102,6 +102,7 @@ const Dashboard = () => {
     total: countData?.total_tickets || 0,
     completed: countData?.completed || 0,
     inProgress: countData?.in_progress || 0,
+    pending:countData?.pending || 0,
     underverification: countData?.under_verification || 0,
   };
 
@@ -121,7 +122,7 @@ const Dashboard = () => {
     { title: "Tickets / तिकिटे", color: "gray", value: stats.total },
     { title: "Completed / पूर्ण तिकिटे", color: "green", value: stats.completed },
     { title: "In Progress / प्रगतीत तिकिटे", color: "blue", value: stats.inProgress },
-    { title: "Pending / प्रलंबित तिकिटे", color: "yellow", value: stats.inProgress},
+    { title: "Pending / प्रलंबित तिकिटे", color: "yellow", value: stats.pending},
     { title: "Under Verification / तपासणीखाली तिकिटे", color: "orange", value: stats.underverification },
   ].map((item, idx) => (
     <div

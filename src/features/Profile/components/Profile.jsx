@@ -227,26 +227,26 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-6">
                   <div>
-                    <label className="text-sm text-gray-500">First Name</label>
+                    <label className="text-sm text-gray-500">First Name / पहिले नाव</label>
                     <div className="bg-gray-50 border rounded-lg p-3 text-gray-800">
                       {formData.first_name}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Last Name</label>
+                    <label className="text-sm text-gray-500">Last Name / आडनाव</label>
                     <div className="bg-gray-50 border rounded-lg p-3 text-gray-800">
                       {formData.last_name}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Email</label>
+                    <label className="text-sm text-gray-500">Email / ईमेल</label>
                     <div className="bg-gray-50 border rounded-lg p-3 flex items-center">
                       <Mail size={16} className="mr-2 text-orange-500" />
                       {formData.email}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Phone</label>
+                    <label className="text-sm text-gray-500">Phone / फोन क्रमांक</label>
                     <div className="bg-gray-50 border rounded-lg p-3 flex items-center">
                       <Phone size={16} className="mr-2 text-orange-500" />
                       {formData.phone || "—"}
@@ -256,28 +256,28 @@ const Profile = () => {
 
                 <div className="space-y-6">
                   <div>
-                    <label className="text-sm text-gray-500">Role</label>
+                    <label className="text-sm text-gray-500">Role भूमिका / पद</label>
                     <div className="bg-gray-50 border rounded-lg p-3 flex items-center">
                       <User size={16} className="mr-2 text-orange-500" />
                       {formData.role?.role_name || "User"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Department</label>
+                    <label className="text-sm text-gray-500">Department / विभाग</label>
                     <div className="bg-gray-50 border rounded-lg p-3 flex items-center">
                       <Building size={16} className="mr-2 text-orange-500" />
                       {formData.department?.department_name || "—"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">Division</label>
+                    <label className="text-sm text-gray-500">Division विभाग </label>
                     <div className="bg-gray-50 border rounded-lg p-3 flex items-center">
                       <MapPin size={16} className="mr-2 text-orange-500" />
                       {formData.division?.division_name || "—"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-500">User ID</label>
+                    <label className="text-sm text-gray-500">User ID / वापरकर्ता क्रमांक </label>
                     <div className="bg-gray-50 border rounded-lg p-3 text-gray-800">
                       {formData.id}
                     </div>

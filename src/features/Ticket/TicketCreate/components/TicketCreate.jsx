@@ -1,5 +1,5 @@
 // src/pages/TicketCreate.jsx
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -23,6 +23,7 @@ import * as Yup from "yup";
 
 const TicketCreate = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const { providers, loading: loadingProviders } = useProviders();
   const [selectedProvider, setSelectedProvider] = React.useState(null);
@@ -32,7 +33,35 @@ const TicketCreate = () => {
     selectedProvider?.value || ""
   );
   const { loading, submit } = useTicketCreate();
-  const { documents, previewFiles, addFiles, removeFile } = useFileUpload();
+  const { documents, previewFiles, removeFile, addFiles: addFilesToUpload } = useFileUpload();
+
+  const addFiles = (e) => {
+    const incoming = Array.from(e.target.files);
+
+    // ❗ MAX 5 FILE LIMIT
+    if (documents.length + incoming.length > 5) {
+      toast.error(
+        "Maximum 5 documents allowed / कमाल 5 दस्तऐवज परवानगी आहेत",
+        { position: "top-right" }
+      );
+      
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // If within limit, process the files
+    if (incoming.length > 0) {
+      addFilesToUpload(e);
+    }
+
+    // Reset the file input for next selection
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const providerOptions = useMemo(
     () =>
@@ -241,6 +270,7 @@ const TicketCreate = () => {
                             Click to upload files / फाईल अपलोड करण्यासाठी क्लिक करा
                           </span>
                           <input
+                            ref={fileInputRef}
                             type="file"
                             multiple
                             onChange={addFiles}
@@ -249,8 +279,13 @@ const TicketCreate = () => {
                           />
                         </label>
                         <p className="text-gray-500 text-xs mt-1">
-                          PNG, JPG, PDF, DOC • Max 10 MB / कमाल 10 MB
+                          PNG, JPG, PDF, DOC • Max 10 MB / कमाल 10 MB • Max 5 files / कमाल 5 फाईल
                         </p>
+                        {previewFiles.length > 0 && (
+                          <p className="text-orange-600 text-xs mt-1 font-medium">
+                            {previewFiles.length}/5 files selected / फाईल निवडल्या
+                          </p>
+                        )}
                       </div>
 
                       {previewFiles.length > 0 && (
@@ -296,13 +331,14 @@ const TicketCreate = () => {
                         Issue Description / समस्या वर्णन{" "}
                         <span className="text-red-500">*</span>
                       </label>
-                      <Field
-                        as="textarea"
-                        name="ticket_details"
-                        placeholder="Please describe your issue... / कृपया आपली समस्या वर्णन करा..."
-                        className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition min-h-[200px]"
-                        minLength={10}
-                      />
+                    <Field
+  as="textarea"
+  name="ticket_details"
+  placeholder="Please describe your issue... / कृपया आपली समस्या वर्णन करा..."
+  className="flex-1 w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 resize-none transition min-h-[200px]"
+  minLength={1}
+  maxLength={1000}
+/>
                       <ErrorMessage
                         name="ticket_details"
                         component="p"

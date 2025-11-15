@@ -98,6 +98,8 @@ const getStatusForAPI = (status) => {
   const handleDeleteClick = (ticket) => {
     setDeletingTicket(ticket);
     setShowDeleteModal(true);
+   
+
   };
 
   const confirmDelete = () => {
@@ -210,9 +212,63 @@ const normalizeStatus = (s) => {
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             {isLoading ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="animate-spin text-orange-600" size={40} />
-              </div>
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-gradient-to-r from-orange-500 to-orange-500 text-white">
+                  <tr>
+                    {[
+                      "Ticket No / तिकीट क्र.",
+                      "Service / सेवा",
+                      "Provider / प्रदाता",
+                      "Assign To / नेमणूक",
+                      "Assign Date / नेमणूक तारीख",
+                      "Status / स्थिती",
+                      "Created / तयार केले",
+                      "Actions / कृती",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="px-5 py-4 text-left text-sm font-semibold"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="hover:bg-gray-50 transition">
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 w-20 bg-gray-200 rounded-full animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                          <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                          <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             ) : isError ? (
               <div className="text-center py-12 text-orange-500 font-medium">
                 Failed to load tickets / तिकिटे लोड करण्यात अयशस्वी
