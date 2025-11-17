@@ -150,7 +150,7 @@ const Dashboard = () => {
   {/* Create New */}
   <button
     onClick={() => navigate("/new-takits")}
-    className="rounded-2xl bg-orange-600 hover:bg-orange-700 text-white 
+    className="rounded-2xl bg-orange-600 hover:bg-orange-700  text-white 
       p-6 text-center flex flex-col items-center justify-center 
       shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
   >
