@@ -144,3 +144,29 @@ export const DashbordCount = async () => {
   const resp = await http.get("dashboard/count");
   return resp.data;
 }
+
+export const StatusChanges = async (formdata) => {
+  const resp = await http.post(
+    "ticket/reopened/status/change",
+    formdata,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+
+  return resp.data;
+};
+
+export const ChangeStatusCompleted = async (payload) => {
+  const resp = await http.post("ticket/complete/status/change", payload);
+  return resp.data;
+};
+
+// local API wrapper to ensure a function exists
+export const statusChangeApi = async (formData) => {
+  const resp = await http.post("ticket/reopened/status/change", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  // return resp.data (adjust if your API returns differently)
+  return resp.data;
+};

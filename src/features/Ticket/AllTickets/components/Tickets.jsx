@@ -43,7 +43,7 @@ const [filter, setFilter] = useState(() => {
     "Pending / प्रलंबित",
     "In Progress / चालू आहे",
     "Mark as Completed / पूर्ण म्हणून चिन्हांकित",
-    "ReOpened / पुन्हा उघडले",
+   
   ];
 
 const getStatusForAPI = (status) => {
@@ -351,7 +351,7 @@ const normalizeStatus = (s) => {
                               className="group-hover:scale-110 transition"
                             />
                           </button>
-
+                            {t.assign_to?.toString() === userId && (
                           <button
                             onClick={() => handleEdit(t.id)}
                             className="p-2.5 bg-yellow-100 text-orange-700 rounded-lg hover:bg-yellow-300 transition group"
@@ -361,7 +361,7 @@ const normalizeStatus = (s) => {
                               className="group-hover:scale-110 transition"
                             />
                           </button>
-
+                                  )}
                           {/* ⭐ FIX 4: Delete फक्त assigned user ला दिसेल */}
                           {t.assign_to?.toString() === userId && (
                             <button
