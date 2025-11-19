@@ -44,76 +44,7 @@ const ViewTicket = () => {
   const [reopenReason, setReopenReason] = useState("");
   const [attachments, setAttachments] = useState([]);
 
-  // // Static remarks data (kept as-is)
-  const staticRemarks = [
-    {
-      id: 1,
-      takenBy: "John Doe",
-      date: "2024-01-15",
-      remark: "Initial assessment completed. Waiting for parts to arrive from supplier.",
-      timestamp: "2024-01-15 10:30 AM",
-      attachments: [
-        {
-          name: "initial_assessment.pdf",
-          url: "/documents/initial_assessment.pdf",
-          type: "pdf",
-        },
-        {
-          name: "damage_photos.zip",
-          url: "/documents/damage_photos.zip",
-          type: "archive",
-        },
-      ],
-    },
-    {
-      id: 2,
-      takenBy: "Jane Smith",
-      date: "2024-01-16",
-      remark: "Parts received. Started repair work. Estimated completion in 2 days.",
-      timestamp: "2024-01-16 02:15 PM",
-      attachments: [
-        {
-          name: "parts_receipt.jpg",
-          url: "/images/parts_receipt.jpg",
-          type: "image",
-        },
-        {
-          name: "repair_progress.mp4",
-          url: "/videos/repair_progress.mp4",
-          type: "video",
-        },
-        {
-          name: "work_log.pdf",
-          url: "/documents/work_log.pdf",
-          type: "pdf",
-        },
-      ],
-    },
-    {
-      id: 3,
-      takenBy: "Mike Johnson",
-      date: "2024-01-18",
-      remark: "Repair completed successfully. Quality check passed. Ready for delivery.",
-      timestamp: "2024-01-18 11:45 AM",
-      attachments: [
-        {
-          name: "final_report.pdf",
-          url: "/documents/final_report.pdf",
-          type: "pdf",
-        },
-        {
-          name: "quality_certificate.jpg",
-          url: "/images/quality_certificate.jpg",
-          type: "image",
-        },
-        {
-          name: "completion_photos.zip",
-          url: "/documents/completion_photos.zip",
-          type: "archive",
-        },
-      ],
-    },
-  ];
+
 
   // React Query Fetch
   const { data: ticket, isLoading, isError } = useQuery({
@@ -435,7 +366,7 @@ const ViewTicket = () => {
                 </div>
                 <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full flex items-center gap-2">
                   <MessageSquare size={14} />
-                  {staticRemarks.length} remark(s) / शेरा
+                  {ticket.length} remark(s) / शेरा
                 </span>
               </div>
 
@@ -615,6 +546,7 @@ const ViewTicket = () => {
 
           {/* Buttons */}
           <div className="p-6 mt-5">
+           
             <div className="flex flex-col sm:flex-row justify-end gap-4">
               <button
                 className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700 w-full sm:w-auto justify-center"
@@ -624,13 +556,13 @@ const ViewTicket = () => {
                 <span>Mark as Completed / पूर्ण झाले म्हणून चिन्हांकित करा</span>
               </button>
 
-              <button
+              {ticket && ticket.status === "completed" ? <button
                 className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700 w-full sm:w-auto justify-center"
                 onClick={() => setShowReopenPopup(true)}
               >
                 <RotateCcw size={18} />
                 <span>Reopen Ticket / तिकीट पुन्हा उघडा</span>
-              </button>
+              </button> : <button></button>}
             </div>
           </div>
         </div>

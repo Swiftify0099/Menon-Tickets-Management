@@ -110,7 +110,7 @@ const Dashboard = () => {
     <div className="space-y-6 px-4 sm:px-6 lg:px-10 py-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 className="text-1xl sm:text-2xl font-semibold text-gray-800">
+        <h2 className="text-1xl sm:text-3xl font-semibold text-gray-800">
           Dashboard / <span>डॅशबोर्ड</span>
         </h2>
       </div>

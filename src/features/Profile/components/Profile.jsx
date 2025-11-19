@@ -80,26 +80,49 @@ const Profile = () => {
       setSelectedFile(null);
       refetch();
     },
-    onError: () => {
-      toast.error("Failed to update photo! / फोटो अपडेट करण्यात अयशस्वी!");
+    onError: (err) => {
+      console.log(err?.response?.data?.message)
+toast.error(err?.response?.data?.message || "Failed to update photo!");
+
     },
   });
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.size <= 5 * 1024 * 1024) {
-      setSelectedFile(file);
-    } else {
-      toast.error("File too large! Max 5MB. / फाईल खूप मोठी आहे!");
-    }
-  };
+ const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Allowed types
+  const allowedTypes = ["image/jpeg", "image/png"];
+
+  // Check type
+  if (!allowedTypes.includes(file.type)) {
+    toast.error(
+      "Only JPG/PNG images allowed! / फक्त JPG किंवा PNG फोटो स्वीकारले जातील!"
+    );
+    return;
+  }
+
+  // Check size (2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    toast.error(
+      "File too large! Max 2MB allowed. / फाईल खूप मोठी आहे! जास्तीत जास्त 2MB पर्यंतच परवानगी आहे."
+    );
+    return;
+  }
+
+  // Valid file
+  setSelectedFile(file);
+};
+
 
   const handlePhotoUpload = () => {
     if (!selectedFile) {
       toast.warn("Please select a photo! / कृपया फोटो निवडा!");
       return;
     }
-    updatePhotoMutation.mutate({ profile_photo: selectedFile });
+    const formData = new FormData();
+   formData.append("profile_photo", selectedFile);
+    updatePhotoMutation.mutate(formData);
   };
 
   // 🔸 Skeleton Loader (3 sec minimum)

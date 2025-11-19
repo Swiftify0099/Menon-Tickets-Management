@@ -7,6 +7,7 @@ import {
   Eye,
   Edit,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -71,6 +72,7 @@ const getStatusForAPI = (status) => {
   });
 
   const tickets = data?.data || [];
+
   const totalRecords = data?.total_records || 0;
   const totalPages = Math.ceil(totalRecords / limit) || 1;
 
@@ -99,12 +101,14 @@ const getStatusForAPI = (status) => {
     setDeletingTicket(ticket);
     setShowDeleteModal(true);
    
-
   };
 
   const confirmDelete = () => {
     setIsDeleting(true);
     deleteMutation.mutate(deletingTicket.id);
+    setInterval(() => {
+      window.location.reload();
+    },1000) 
   };
 
  const getStatusColor = (status) => {
@@ -154,6 +158,8 @@ const normalizeStatus = (s) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  
+
   return (
     <>
       {/* UI SAME — NO CHANGES DONE */}
@@ -166,6 +172,15 @@ const normalizeStatus = (s) => {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Refresh Button */}
+            <button
+              onClick={() => refetch()}
+              className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-sm font-medium transition-all shadow-md"
+            >
+              <RefreshCw size={16} />
+              Refresh / रिफ्रेश
+            </button>
+
             {/* Status Filter */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -312,8 +327,10 @@ const normalizeStatus = (s) => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {tickets.map((t) => (
+                      <tbody className="divide-y divide-gray-200">
+                       
+                        {tickets.map((t) => (
+                    
                     <tr key={t.id} className="hover:bg-gray-50 transition">
                       <td className="px-5 py-4 font-mono font-bold text-black">
                         {t.ticket_number}
@@ -324,6 +341,7 @@ const normalizeStatus = (s) => {
                       <td className="px-5 py-4">{t.provider_name}</td>
                       <td className="px-5 py-4 text-gray-600">
                         {formatAssignName(t.assign_user_name)}
+                       
                       </td>
                       <td className="px-5 py-4 text-sm text-gray-600">
                         {formatDate(t.assign_date)}

@@ -64,8 +64,10 @@ export const updateProfilePicture = async (formData) => {
       "Content-Type": "multipart/form-data",
     },
   });
-  return resp.data;
+
+  return resp; // <-- VERY IMPORTANT
 };
+
 
 export const services = async (providerId) => {
   const resp = await http.get("services", {
