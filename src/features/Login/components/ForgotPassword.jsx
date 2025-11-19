@@ -29,16 +29,18 @@ const ForgotPassword = () => {
         }
       );
 
-      console.log("Reset link:", res?.data?.link);
 
+    //   setTimeout(() => {
+    //     if (res?.link) {
+    //       const token = new URL(res.link).searchParams.get("token");
+    //       navigate(`/reset-password?token=${token}`);
+    //     } else {
+    //       navigate("/login");
+    //     }
+      //   }, 1000);
       setTimeout(() => {
-        if (res?.link) {
-          const token = new URL(res.link).searchParams.get("token");
-          navigate(`/reset-password?token=${token}`);
-        } else {
-          navigate("/login");
-        }
-      }, 1000);
+        navigate("/login");
+      },3000)
     },
 
     onError: (err) => {

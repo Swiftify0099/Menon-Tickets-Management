@@ -269,7 +269,7 @@ const ViewTicket = () => {
           <p className="text-red-500 text-lg mb-4">Ticket not found / त्रुटी</p>
           <button
             onClick={() => navigate("/tickets")}
-            className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+            className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-[#f57c00] transition-colors"
           >
             Back to Tickets
           </button>
@@ -302,7 +302,7 @@ const ViewTicket = () => {
         {/* Main Card */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-6">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
+          <div className="bg-[#f57c00] from-orange-500 to-orange-600 text-white p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold">Ticket ID {ticket.ticket_number || `TICKET-${id}`}</h2>
@@ -375,14 +375,14 @@ const ViewTicket = () => {
                 {ticket.action_history.map((remark) => (
                   <div
                     key={remark.id}
-                    className="bg-gradient-to-r from-gray-50 to-white p-5 rounded-xl border border-gray-200 hover:border-orange-200 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col h-full"
+                    className="bg-gray-50 from-gray-50 to-white p-5 rounded-xl border border-gray-200 hover:border-orange-200 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col h-full"
                   >
                     {/* Header with User Info and Labels */}
                     <div className="flex flex-col gap-3 mb-4">
                       <div className="flex h-10 items-start gap-3">
 
                         {/* Avatar Circle */}
-                        <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md flex-shrink-0">
+                        <div className="w-10 h-10 bg-[#f57c00] from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md flex-shrink-0">
                           {(remark.user_name || "?")
                             .split(" ")
                             .map((n) => n[0])
@@ -549,7 +549,7 @@ const ViewTicket = () => {
            
             <div className="flex flex-col sm:flex-row justify-end gap-4">
               <button
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700 w-full sm:w-auto justify-center"
+                className="px-6 py-3 bg-[#f57c00] from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-green-600 hover:to-emerald-700 w-full sm:w-auto justify-center"
                 onClick={handleComplete}
               >
                 <CheckCircle size={18} />
@@ -557,7 +557,7 @@ const ViewTicket = () => {
               </button>
 
               {ticket && ticket.status === "completed" ? <button
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700 w-full sm:w-auto justify-center"
+                className="px-6 py-3 bg-[#f57c00] from-orange-500 to-orange-600 text-white font-semibold rounded-lg shadow-md cursor-pointer select-none flex items-center gap-2 transition-all duration-200 hover:shadow-lg hover:from-orange-600 hover:to-orange-700 w-full sm:w-auto justify-center"
                 onClick={() => setShowReopenPopup(true)}
               >
                 <RotateCcw size={18} />
@@ -628,7 +628,7 @@ const ViewTicket = () => {
 
               <button
                 onClick={handleReopenConfirm}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-colors"
+                className="flex-1 px-4 py-2 bg-[#f57c00] from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-colors"
               >
                 {isReopening ? "Processing..." : "Confirm / पुष्टी करा"}
               </button>
@@ -672,7 +672,7 @@ const ViewTicket = () => {
                   <FileText size={64} className="mx-auto text-gray-400 mb-4" />
                   <h4 className="text-lg font-semibold text-gray-800 mb-2">Preview Not Available / पूर्वावलोकन उपलब्ध नाही</h4>
                   <p className="text-gray-600 mb-4">Download to view this file. / ही फाईल पाहण्यासाठी डाउनलोड करा.</p>
-                  <button onClick={() => downloadFile(currentDocument.document_url, currentDocument.document_url.split("/").pop())} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2 mx-auto">
+                  <button onClick={() => downloadFile(currentDocument.document_url, currentDocument.document_url.split("/").pop())} className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-[#f57c00] flex items-center gap-2 mx-auto">
                     <Download size={18} /> Download / डाउनलोड करा
                   </button>
                 </div>

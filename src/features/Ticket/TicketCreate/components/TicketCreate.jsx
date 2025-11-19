@@ -176,8 +176,8 @@ const TicketCreate = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-t-xl text-white px-6 py-4">
+        <div className="rounded-xl shadow-lg border border-gray-200">
+          <div className="bg-[#f57c00] from-orange-500 to-orange-600 rounded-t-xl text-white px-6 py-4">
             <h2 className="text-xl font-bold">Ticket Information / तिकीट माहिती</h2>
             <p className="text-orange-100 text-sm mt-1">
               All fields marked with * are required / * असलेली सर्व फील्ड आवश्यक आहेत
@@ -364,7 +364,7 @@ const TicketCreate = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 shadow-sm hover:shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px] h-11"
+                    className="px-8 py-3 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-[#f57c00] shadow-sm hover:shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px] h-11"
                   >
                     {loading ? (
                       <>

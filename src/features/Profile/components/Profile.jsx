@@ -57,7 +57,8 @@ const Profile = () => {
     if (profile?.data?.user) {
       const user = profile.data.user;
       setFormData(user);
-      localStorage.setItem("user", JSON.stringify(user));
+   const currentUser = JSON.parse(sessionStorage.getItem("user") || "{}");
+
       localStorage.setItem("profile", JSON.stringify(user));
       dispatch(updateUser(user));
     }
@@ -83,7 +84,7 @@ const Profile = () => {
     onError: (err) => {
       console.log(err?.response?.data?.message)
 toast.error(err?.response?.data?.message || "Failed to update photo!");
-
+setSelectedFile(null)
     },
   });
 
@@ -186,7 +187,7 @@ toast.error(err?.response?.data?.message || "Failed to update photo!");
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8 text-center">
+            <div className="bg-[#f57c00] from-orange-500 to-orange-600 px-6 py-8 text-center">
               <div className="relative inline-block">
                 <img
                   src={
@@ -237,7 +238,7 @@ toast.error(err?.response?.data?.message || "Failed to update photo!");
 
           {/* Right */}
           <div className="lg:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+            <div className="bg-[#f57c00] from-orange-500 to-orange-600 px-6 py-4">
               <h2 className="text-xl font-bold text-white">
                 Profile Information / प्रोफाइल माहिती
               </h2>

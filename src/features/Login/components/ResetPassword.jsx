@@ -132,7 +132,7 @@ const ResetPassword = () => {
                 type="submit"
                 disabled={updateMutation.isPending || !token}
                 className="w-full bg-orange-500 text-white py-2 rounded-lg mt-4 
-                           hover:bg-orange-600 transition font-semibold 
+                           hover:bg-[#f57c00] transition font-semibold 
                            disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {updateMutation.isPending

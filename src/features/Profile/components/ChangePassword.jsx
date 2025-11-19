@@ -165,7 +165,7 @@ const ChangePassword = ({ onChangePassword }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full bg-orange-500 hover:bg-[#f57c00] text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
           >
             Update Password / पासवर्ड अद्यतनित करा
           </button>
@@ -184,7 +184,7 @@ const ChangePassword = ({ onChangePassword }) => {
               <div className="flex justify-center gap-4 mt-4">
                 <button
                   onClick={handleConfirmYes}
-                  className="px-5 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
+                  className="px-5 py-2 bg-orange-500 text-white rounded-lg hover:bg-[#f57c00] transition-all"
                 >
                   Yes / हो
                 </button>

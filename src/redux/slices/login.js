@@ -1,5 +1,18 @@
+// src/redux/slices/login.js
 import { createSlice } from "@reduxjs/toolkit";
 import { QueryClient } from "@tanstack/react-query";
+
+// helper to parse JWT and extract payload safely
+const parseJwt = (token) => {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decodeURIComponent(escape(decoded)));
+  } catch (e) {
+    return null;
+  }
+};
+
 const initialState = {
   isLoggedIn: false,
   token: null,
@@ -12,19 +25,37 @@ const loginSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      const { user, token } = action.payload;
+      const { token, user } = action.payload;
+
+      // ensure we have an id on user: try user.id || token.sub
+      let safeUser = { ...user };
+      if (!safeUser.id && token) {
+        const payload = parseJwt(token);
+        if (payload && (payload.sub || payload.id)) {
+          safeUser.id = payload.sub ?? payload.id;
+        }
+      }
+
       state.isLoggedIn = true;
-      state.user = user;
+      state.user = safeUser;
       state.token = token;
-      localStorage.setItem("user", JSON.stringify(user));
+
+      // persist
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(safeUser));
+      localStorage.setItem("profile", JSON.stringify(safeUser));
     },
     logout: (state) => {
       state.isLoggedIn = false;
       state.user = null;
       state.token = null;
       state.profile = null;
-       QueryClient.clear();
+
+      try {
+        // clear react-query cache (if you use a client instance elsewhere, call it there)
+        QueryClient.clear();
+      } catch (e) {}
+
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       localStorage.removeItem("profile");
@@ -33,6 +64,12 @@ const loginSlice = createSlice({
       const updatedProfile = { ...state.profile, ...action.payload };
       state.profile = updatedProfile;
       localStorage.setItem("profile", JSON.stringify(updatedProfile));
+      // keep user in sync as well if id matches
+      if (state.user) {
+        const merged = { ...state.user, ...action.payload };
+        state.user = merged;
+        localStorage.setItem("user", JSON.stringify(merged));
+      }
     },
     RemberMe: (state, action) => {
       const { ReEmail, RePassword, Remember } = action.payload;

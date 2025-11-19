@@ -13,7 +13,7 @@ const Skeleton = ({ className }) => (
   <div
     className={`relative overflow-hidden rounded-lg bg-gray-200 ${className}`}
   >
-    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-[#f57c00] from-transparent via-gray-300 to-transparent" />
   </div>
 );
 
@@ -119,46 +119,55 @@ const Dashboard = () => {
      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mt-6">
 
   {[
-    { title: "Tickets / तिकिटे", color: "gray", value: stats.total },
-    { title: "Completed / पूर्ण तिकिटे", color: "green", value: stats.completed },
-    { title: "In Progress / प्रगतीत तिकिटे", color: "blue", value: stats.inProgress },
-    { title: "Pending / प्रलंबित तिकिटे", color: "yellow", value: stats.pending},
-    { title: "Under Verification / तपासणीखाली तिकिटे", color: "orange", value: stats.underverification },
-  ].map((item, idx) => (
-    <div
-      key={idx}
-      className={`rounded-2xl border border-${item.color}-200 bg-white p-4 
-        shadow-md hover:shadow-xl hover:-translate-y-1 
-        transition-all duration-300 flex flex-col items-center justify-between`}
-    >
-      <h3 className={`text-sm font-semibold text-${item.color}-600 uppercase tracking-wide text-center`}>
-        {item.title}
-      </h3>
+  { title: "Tickets / तिकिटे", color: "gray", value: stats.total },
+  { title: "Completed / पूर्ण तिकिटे", color: "green", value: stats.completed },
+  { title: "In Progress / प्रगतीत तिकिटे", color: "blue", value: stats.inProgress },
+  { title: "Pending / प्रलंबित तिकिटे", color: "yellow", value: stats.pending, fix: true },
+  { title: "Under Verification / तपासणीखाली तिकिटे", color: "orange", value: stats.underverification },
+]
+.map((item, idx) => (
+   <div
+  key={idx}
+  className={`rounded-2xl border  
+    ${item.fix ? "border-yellow-500" : `border-${item.color}-200`} 
+    p-4 shadow-md hover:shadow-xl hover:-translate-y-1 
+    transition-all duration-300 flex flex-col items-center justify-between `}
+>
+  <h3
+    className={`text-sm font-semibold uppercase tracking-wide text-center 
+      ${item.fix ? "text-yellow-600" : `text-${item.color}-700`}`}
+  >
+    {item.title}
+  </h3>
 
-      {countLoading ? (
-        <div className="mt-2s flex justify-center w-full">
-          <Skeleton className="h-10 w-20" />
-        </div>
-      ) : (
-        <p className={`text-4xl font-extrabold text-${item.color}-700 mt-1 text-center`}>
-          {item.value}
-        </p>
-      )}
+  {countLoading ? (
+    <div className="mt-2 flex justify-center w-full">
+      <Skeleton className="h-10 w-20" />
     </div>
+  ) : (
+    <p
+      className={`text-4xl font-extrabold mt-1 text-center 
+        ${item.fix ? "text-yellow-700" : `text-${item.color}-700`}`}
+    >
+      {item.value}
+    </p>
+  )}
+</div>
+
   ))}
 
   {/* Create New */}
-  <button
-    onClick={() => navigate("/new-takits")}
-    className="rounded-2xl bg-orange-600 hover:bg-orange-700  text-white 
-      p-6 text-center flex flex-col items-center justify-center 
-      shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-  >
-    <h3 className="text-sm font-semibold uppercase tracking-wide text-center">
-      Create New / नवीन तयार करा
-    </h3>
-    <Plus className="mt-3" size={28} />
-  </button>
+ <button
+  onClick={() => navigate("/new-takits")}
+  className="rounded-2xl text-white p-6 text-center flex flex-col bg-[#f57c00] items-center justify-center shadow-md hover:shadow-xl hover:-translate-y-1transition-all duration-300"
+ 
+>
+  <h3 className="text-sm font-semibold uppercase tracking-wide text-center">
+    Create New / नवीन तयार करा
+  </h3>
+  <Plus className="mt-3" size={28} />
+</button>
+
 
 </div>
 
@@ -196,7 +205,7 @@ const Dashboard = () => {
               <button
                 onClick={confirmDelete}
                 disabled={isDeleting}
-                className="px-8 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 font-medium flex items-center justify-center gap-3 shadow-lg"
+                className="px-8 py-3 bg-[#f57c00] text-white rounded-xl hover:bg-orange-700 font-medium flex items-center justify-center gap-3 shadow-lg"
               >
                 {isDeleting && <Loader2 className="animate-spin" size={18} />}
                 {isDeleting ? "Deleting..." : "Yes, Delete"}

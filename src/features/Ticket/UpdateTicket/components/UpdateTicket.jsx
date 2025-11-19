@@ -552,7 +552,7 @@ const UpdateTicket = () => {
 
         {/* Main Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4">
+          <div className="bg-[#f57c00] from-orange-500 to-orange-600 text-white px-6 py-4">
             <h2 className="text-xl font-bold">Update Ticket Information / तिकीट माहिती अद्यतनित करा</h2>
             <p className="text-orange-100 text-sm mt-1">Update the fields below to modify your ticket / आपल्या तिकीटमध्ये सुधारणा करण्यासाठी खालील फील्ड्स अद्यतनित करा</p>
           </div>

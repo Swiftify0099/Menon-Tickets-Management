@@ -129,7 +129,7 @@ const Profile = () => {
           {/* Left: Avatar Card */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8 text-center">
+              <div className="bg-[#f57c00] from-orange-500 to-orange-600 px-6 py-8 text-center">
                 <div className="relative inline-block">
                   <img
                     src={
@@ -179,7 +179,7 @@ const Profile = () => {
 
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+              <div className="bg-[#f57c00] from-orange-500 to-orange-600 px-6 py-4">
                 <h2 className="text-xl font-bold text-white">Profile Information</h2>
                 <p className="text-orange-100 text-sm mt-1">Your personal details</p>
               </div>
